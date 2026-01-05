@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Orchestrator Demos</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .demo-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .demo-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+        }
+
+        .demo-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .demo-card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .demo-card .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.8rem;
+        }
+
+        /* Tool Selector Demo */
+        .tool-selector {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tool-selector h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        .input-group input, .input-group select {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 1rem;
+        }
+
+        .input-group input:focus, .input-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .capability-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+        }
+
+        .chip.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Result Display */
+        .result {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            display: none;
+        }
+
+        .result.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .result-header .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .result-header .status.success {
+            color: var(--success);
+        }
+
+        .tool-selected {
+            font-size: 1.25rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .score-bar {
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 0.5s ease-out;
+        }
+
+        .reasoning {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            font-style: italic;
+        }
+
+        /* Architecture Diagram */
+        .architecture {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .architecture h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .arch-diagram {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .module-box {
+            width: 140px;
+            padding: 1rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.3s;
+        }
+
+        .module-box:hover {
+            border-color: var(--primary);
+            transform: scale(1.05);
+        }
+
+        .module-box .module-id {
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .module-box .module-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .module-box .tests {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MCP Orchestrator Demos</h1>
+            <p class="subtitle">Interactive demonstrations of the Cognitive Dispatcher</p>
+        </header>
+
+        <!-- Tool Selector Demo -->
+        <section class="tool-selector">
+            <h2>Tool Selection Simulator</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem;">
+                See how the orchestrator selects the best tool based on capabilities.
+            </p>
+
+            <div class="input-group">
+                <label>Select Capabilities Required:</label>
+                <div class="capability-chips">
+                    <span class="chip" data-cap="calculation">calculation</span>
+                    <span class="chip" data-cap="code_generation">code_generation</span>
+                    <span class="chip" data-cap="code_analysis">code_analysis</span>
+                    <span class="chip" data-cap="text_analysis">text_analysis</span>
+                    <span class="chip" data-cap="general">general</span>
+                    <span class="chip" data-cap="testing">testing</span>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Provider Preference (optional):</label>
+                <select id="preferProvider">
+                    <option value="">No preference</option>
+                    <option value="internal">Internal (local tools)</option>
+                    <option value="anthropic">Anthropic (Claude)</option>
+                </select>
+            </div>
+
+            <button onclick="simulateSelection()">Find Best Tool</button>
+
+            <div class="result" id="selectionResult">
+                <div class="result-header">
+                    <div class="status success">
+                        <span>Tool Selected</span>
+                    </div>
+                    <span id="latency">12ms</span>
+                </div>
+                <div class="tool-selected" id="toolName">claude_code_generation</div>
+                <div class="score-bar">
+                    <div class="score-fill" id="scoreBar" style="width: 0%"></div>
+                </div>
+                <div class="reasoning" id="reasoning">
+                    Selected 'Claude Code Generation' (score: 3.48); matches capabilities: ['code_generation']
+                </div>
+            </div>
+        </section>
+
+        <!-- Available Tools -->
+        <h2 style="margin-bottom: 1rem;">Available Tools</h2>
+        <div class="demo-grid">
+            <div class="demo-card">
+                <h3>internal_calculator</h3>
+                <p>Performs basic arithmetic operations (add, subtract, multiply, divide)</p>
+                <div class="tags">
+                    <span class="tag">calculation</span>
+                    <span class="tag">math</span>
+                    <span class="tag">internal</span>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>internal_echo</h3>
+                <p>Echo back input for testing purposes</p>
+                <div class="tags">
+                    <span class="tag">testing</span>
+                    <span class="tag">echo</span>
+                    <span class="tag">internal</span>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>claude_code_generation</h3>
+                <p>Generate code from natural language descriptions using Claude</p>
+                <div class="tags">
+                    <span class="tag">code_generation</span>
+                    <span class="tag">coding</span>
+                    <span class="tag">anthropic</span>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>claude_code_analysis</h3>
+                <p>Analyze code structure, quality, and suggest improvements</p>
+                <div class="tags">
+                    <span class="tag">code_analysis</span>
+                    <span class="tag">code_review</span>
+                    <span class="tag">anthropic</span>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>claude_text_analysis</h3>
+                <p>Analyze and summarize text content</p>
+                <div class="tags">
+                    <span class="tag">text_summarization</span>
+                    <span class="tag">text_analysis</span>
+                    <span class="tag">anthropic</span>
+                </div>
+            </div>
+
+            <div class="demo-card">
+                <h3>claude_general</h3>
+                <p>General-purpose Claude assistant for various tasks</p>
+                <div class="tags">
+                    <span class="tag">general</span>
+                    <span class="tag">chat</span>
+                    <span class="tag">reasoning</span>
+                    <span class="tag">anthropic</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Architecture Diagram -->
+        <section class="architecture">
+            <h2>6-Module Architecture</h2>
+            <div class="arch-diagram">
+                <div class="module-box">
+                    <div class="module-id">M1</div>
+                    <div class="module-name">Core Orchestrator</div>
+                    <div class="tests">89 tests</div>
+                </div>
+                <div class="module-box">
+                    <div class="module-id">M2</div>
+                    <div class="module-name">Config Engine</div>
+                    <div class="tests">106 tests</div>
+                </div>
+                <div class="module-box">
+                    <div class="module-id">M3</div>
+                    <div class="module-name">Observability</div>
+                    <div class="tests">110 tests</div>
+                </div>
+                <div class="module-box">
+                    <div class="module-id">M4</div>
+                    <div class="module-name">Dashboard API</div>
+                    <div class="tests">84 tests</div>
+                </div>
+                <div class="module-box">
+                    <div class="module-id">M5</div>
+                    <div class="module-name">Learning Layer</div>
+                    <div class="tests">107 tests</div>
+                </div>
+                <div class="module-box">
+                    <div class="module-id">M6</div>
+                    <div class="module-name">Infrastructure</div>
+                    <div class="tests">Docker</div>
+                </div>
+            </div>
+            <p style="margin-top: 1.5rem; color: var(--text-muted);">
+                Total: <strong>496 tests</strong> passing
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="https://github.com/fbratten/ai-projects-and-management-example">GitHub</a> |
+            Built with the MCP Orchestrator Platform
+        </p>
+    </footer>
+
+    <script>
+        // Tool database
+        const tools = {
+            'calculation': { tool: 'internal_calculator', provider: 'internal', score: 3.5 },
+            'math': { tool: 'internal_calculator', provider: 'internal', score: 3.5 },
+            'testing': { tool: 'internal_echo', provider: 'internal', score: 3.5 },
+            'echo': { tool: 'internal_echo', provider: 'internal', score: 3.5 },
+            'code_generation': { tool: 'claude_code_generation', provider: 'anthropic', score: 3.2 },
+            'coding': { tool: 'claude_code_generation', provider: 'anthropic', score: 3.2 },
+            'code_analysis': { tool: 'claude_code_analysis', provider: 'anthropic', score: 3.2 },
+            'code_review': { tool: 'claude_code_analysis', provider: 'anthropic', score: 3.2 },
+            'text_analysis': { tool: 'claude_text_analysis', provider: 'anthropic', score: 3.2 },
+            'text_summarization': { tool: 'claude_text_analysis', provider: 'anthropic', score: 3.2 },
+            'general': { tool: 'claude_general', provider: 'anthropic', score: 2.8 },
+            'chat': { tool: 'claude_general', provider: 'anthropic', score: 2.8 },
+            'reasoning': { tool: 'claude_general', provider: 'anthropic', score: 2.8 },
+        };
+
+        // Selected capabilities
+        let selectedCaps = [];
+
+        // Chip selection
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('selected');
+                const cap = chip.dataset.cap;
+                if (selectedCaps.includes(cap)) {
+                    selectedCaps = selectedCaps.filter(c => c !== cap);
+                } else {
+                    selectedCaps.push(cap);
+                }
+            });
+        });
+
+        // Simulate tool selection
+        function simulateSelection() {
+            if (selectedCaps.length === 0) {
+                alert('Please select at least one capability');
+                return;
+            }
+
+            const preferProvider = document.getElementById('preferProvider').value;
+
+            // Find best matching tool
+            let bestTool = null;
+            let bestScore = 0;
+            let matchedCaps = [];
+
+            for (const cap of selectedCaps) {
+                if (tools[cap]) {
+                    let score = tools[cap].score;
+
+                    // Apply provider preference
+                    if (preferProvider && tools[cap].provider === preferProvider) {
+                        score *= 1.5;
+                    }
+
+                    // Internal tools get bonus (D-M1-004)
+                    if (tools[cap].provider === 'internal') {
+                        score *= 1.2;
+                    }
+
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestTool = tools[cap];
+                        matchedCaps = [cap];
+                    }
+                }
+            }
+
+            if (!bestTool) {
+                alert('No matching tool found');
+                return;
+            }
+
+            // Show result
+            const result = document.getElementById('selectionResult');
+            result.classList.add('visible');
+
+            document.getElementById('toolName').textContent = bestTool.tool;
+            document.getElementById('latency').textContent = Math.floor(Math.random() * 20 + 5) + 'ms';
+
+            // Animate score bar
+            const scorePercent = (bestScore / 5) * 100;
+            setTimeout(() => {
+                document.getElementById('scoreBar').style.width = scorePercent + '%';
+            }, 100);
+
+            document.getElementById('reasoning').textContent =
+                `Selected '${bestTool.tool}' (score: ${bestScore.toFixed(2)}); ` +
+                `${bestTool.provider === 'internal' ? 'internal tool preferred (D-M1-004)' : 'external provider'}; ` +
+                `matches capabilities: [${matchedCaps.map(c => `'${c}'`).join(', ')}]`;
+        }
+    </script>
+</body>
+</html>

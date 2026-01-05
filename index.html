@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intelligent MCP Orchestrator</title>
+    <meta name="description" content="A Cognitive Dispatcher that routes tasks between internal MCP tools and external AI providers.">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, rgba(99,102,241,0.1) 0%, transparent 100%);
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--primary), #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+        }
+
+        .badge.success { border-color: var(--success); color: var(--success); }
+        .badge.primary { border-color: var(--primary); color: var(--primary); }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 4rem 0;
+        }
+
+        h2 {
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .feature h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .modules {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .module {
+            width: 150px;
+            padding: 1.5rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .module:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .module .id {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .module .name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin: 0.5rem 0;
+        }
+
+        .module .tests {
+            font-size: 0.75rem;
+            color: var(--success);
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword { color: #c792ea; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; }
+        .code-block .function { color: #82aaff; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>Intelligent MCP Orchestrator</h1>
+        <p>A Cognitive Dispatcher that routes tasks between internal MCP tools and external AI providers, with Claude-first bias and self-learning capabilities.</p>
+
+        <div class="badges">
+            <span class="badge success">496 Tests Passing</span>
+            <span class="badge success">6/6 Modules Complete</span>
+            <span class="badge primary">Real API Integration</span>
+        </div>
+
+        <div class="cta-buttons">
+            <a href="demos/" class="btn btn-primary">View Demos</a>
+            <a href="https://github.com/fbratten/ai-projects-and-management-example" class="btn btn-secondary">GitHub</a>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Key Features</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Capability-Based Routing</h3>
+                <p>Match tasks to tools via capability tags, not exact names. Decouples task from implementation.</p>
+            </div>
+            <div class="feature">
+                <h3>Claude-First Bias</h3>
+                <p>Prefer Anthropic Claude for external calls with 1.5x weight. Fallback to other providers when needed.</p>
+            </div>
+            <div class="feature">
+                <h3>Internal Tools First</h3>
+                <p>Try local MCP tools before external providers. Lower latency, no costs, more control.</p>
+            </div>
+            <div class="feature">
+                <h3>Retry & Fallback</h3>
+                <p>Exponential backoff with automatic fallback chains. Resilient to transient failures.</p>
+            </div>
+            <div class="feature">
+                <h3>Learning Layer</h3>
+                <p>LanceDB for semantic similarity, Neo4j for relationships. Improves tool selection over time.</p>
+            </div>
+            <div class="feature">
+                <h3>Full Observability</h3>
+                <p>Prometheus metrics, Grafana dashboards, JSON structured logs. Complete visibility.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>6-Module Architecture</h2>
+        <div class="modules">
+            <div class="module">
+                <div class="id">M1</div>
+                <div class="name">Core Orchestrator</div>
+                <div class="tests">89 tests</div>
+            </div>
+            <div class="module">
+                <div class="id">M2</div>
+                <div class="name">Config Engine</div>
+                <div class="tests">106 tests</div>
+            </div>
+            <div class="module">
+                <div class="id">M3</div>
+                <div class="name">Observability</div>
+                <div class="tests">110 tests</div>
+            </div>
+            <div class="module">
+                <div class="id">M4</div>
+                <div class="name">Dashboard</div>
+                <div class="tests">84 tests</div>
+            </div>
+            <div class="module">
+                <div class="id">M5</div>
+                <div class="name">Learning</div>
+                <div class="tests">107 tests</div>
+            </div>
+            <div class="module">
+                <div class="id">M6</div>
+                <div class="name">Infrastructure</div>
+                <div class="tests">Docker</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Quick Example</h2>
+        <div class="code-block">
+<pre><span class="keyword">from</span> mcp_core.orchestrator <span class="keyword">import</span> Orchestrator
+
+orchestrator = Orchestrator(auto_configure=<span class="keyword">True</span>)
+orchestrator.configure_anthropic(api_key=<span class="string">"sk-..."</span>)
+
+<span class="comment"># Ask for code generation - automatically routes to Claude</span>
+response = <span class="keyword">await</span> orchestrator.<span class="function">execute_task</span>(
+    task=<span class="string">"Write a Fibonacci function"</span>,
+    capabilities=[<span class="string">"code_generation"</span>],
+)
+
+<span class="function">print</span>(response.tool_used)    <span class="comment"># claude_code_generation</span>
+<span class="function">print</span>(response.provider)     <span class="comment"># anthropic</span></pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>
+            Built with Python, FastAPI, LanceDB, Neo4j, and Docker<br>
+            <a href="https://github.com/fbratten/ai-projects-and-management-example">View on GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>
