@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Lab - MCP Orchestrator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+        }
+
+        .lab-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .lab-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .lab-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+            border-color: var(--primary);
+        }
+
+        .lab-card .icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .lab-card h2 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .lab-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .lab-card .tags {
+            margin-top: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tag {
+            padding: 0.25rem 0.5rem;
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+
+        .status-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-dot.warning {
+            background: var(--warning);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Demo Lab</h1>
+            <p class="subtitle">Interactive sandbox for exploring the MCP Orchestrator</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="../">Demos Home</a></li>
+                <li><a href="../explain/">How It Works</a></li>
+            </ul>
+        </nav>
+
+        <div class="lab-grid">
+            <a href="task-runner.html" class="lab-card">
+                <div class="icon">&#9654;</div>
+                <h2>Task Runner</h2>
+                <p>Submit tasks and see which tools are selected. Watch the scoring algorithm in action.</p>
+                <div class="tags">
+                    <span class="tag">Interactive</span>
+                    <span class="tag">Scoring</span>
+                </div>
+            </a>
+
+            <a href="learning-viz.html" class="lab-card">
+                <div class="icon">&#128200;</div>
+                <h2>Learning Visualization</h2>
+                <p>See how tool scores change over time based on execution history.</p>
+                <div class="tags">
+                    <span class="tag">M5 Learning</span>
+                    <span class="tag">History</span>
+                </div>
+            </a>
+
+            <a href="score-decay.html" class="lab-card">
+                <div class="icon">&#8600;</div>
+                <h2>Score Decay</h2>
+                <p>Visualize temporal weighting and how old outcomes fade over time.</p>
+                <div class="tags">
+                    <span class="tag">Temporal</span>
+                    <span class="tag">Decay</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>Orchestrator: Simulated</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>6 Tools Available</span>
+            </div>
+            <div class="status-item">
+                <span class="status-dot warning"></span>
+                <span>Learning: Demo Mode</span>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="../../">Home</a> |
+            <a href="https://github.com/fbratten/ai-projects-and-management-example">GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Example Flow - MCP Orchestrator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Step Cards */
+        .step {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .step-number {
+            width: 48px;
+            height: 48px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+        }
+
+        .step-content {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .step-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .step-content p {
+            margin-bottom: 0;
+        }
+
+        .step::before {
+            content: '';
+            position: absolute;
+            left: 23px;
+            top: 48px;
+            bottom: -1.5rem;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .step:last-child::before {
+            display: none;
+        }
+
+        /* Code blocks */
+        .code-block {
+            background: #0d1117;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block .keyword { color: #ff7b72; }
+        .code-block .string { color: #a5d6ff; }
+        .code-block .comment { color: #8b949e; }
+        .code-block .function { color: #d2a8ff; }
+        .code-block .number { color: #79c0ff; }
+
+        /* Result highlight */
+        .result-box {
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(99, 102, 241, 0.1));
+            border: 1px solid var(--success);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+        }
+
+        .result-box h4 {
+            color: var(--success);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Scoring table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.9rem;
+        }
+
+        th, td {
+            padding: 0.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+        }
+
+        .winner {
+            background: rgba(34, 197, 94, 0.1);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Example Flow</h1>
+            <p style="color: var(--text-muted);">Step-by-step walkthrough of a real task</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Overview</a></li>
+                <li><a href="tool-scoring.html">Tool Scoring</a></li>
+                <li><a href="learning-loop.html">Learning Loop</a></li>
+                <li><a href="example-flow.html" class="active">Example Flow</a></li>
+            </ul>
+        </nav>
+
+        <section class="card">
+            <h2>Task: Write a Fibonacci Function</h2>
+            <p>Let's trace exactly what happens when a user asks the orchestrator to generate code.</p>
+
+            <div class="code-block">
+<span class="keyword">from</span> mcp_core.orchestrator <span class="keyword">import</span> Orchestrator
+
+orchestrator = Orchestrator(auto_configure=<span class="keyword">True</span>)
+orchestrator.configure_anthropic(api_key=<span class="string">"sk-..."</span>)
+
+response = <span class="keyword">await</span> orchestrator.<span class="function">execute_task</span>(
+    task=<span class="string">"Write a Python function to calculate Fibonacci numbers"</span>,
+    capabilities=[<span class="string">"code_generation"</span>],
+)
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Execution Steps</h2>
+
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Request Received</h3>
+                    <p>M1 Core Orchestrator receives the task with capability requirement <code>["code_generation"]</code></p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Find Matching Tools</h3>
+                    <p>Registry searches for tools with <code>code_generation</code> capability:</p>
+                    <ul style="color: var(--text-muted); padding-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>claude_code_generation (anthropic)</li>
+                        <li>openai_codex (openai) - if configured</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Score Each Tool</h3>
+                    <p>Apply scoring formula to each matching tool:</p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Tool</th>
+                                <th>Cap</th>
+                                <th>Prov</th>
+                                <th>Int</th>
+                                <th>Learn</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="winner">
+                                <td>claude_code_generation</td>
+                                <td>1.0</td>
+                                <td>1.5</td>
+                                <td>1.0</td>
+                                <td>1.2</td>
+                                <td><strong>1.80</strong></td>
+                            </tr>
+                            <tr>
+                                <td>openai_codex</td>
+                                <td>1.0</td>
+                                <td>1.0</td>
+                                <td>1.0</td>
+                                <td>0.9</td>
+                                <td>0.90</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-content">
+                    <h3>Select Best Tool</h3>
+                    <p><strong>Winner:</strong> claude_code_generation with score 1.80</p>
+                    <p style="color: var(--text-muted);">Claude-first bias (1.5x) + good learning history (1.2x) = highest score</p>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">5</div>
+                <div class="step-content">
+                    <h3>Execute via Anthropic Adapter</h3>
+                    <p>AnthropicAdapter makes API call to Claude:</p>
+                    <div class="code-block">
+<span class="comment"># Internal adapter call</span>
+client.messages.create(
+    model=<span class="string">"claude-sonnet-4-20250514"</span>,
+    messages=[{<span class="string">"role"</span>: <span class="string">"user"</span>, <span class="string">"content"</span>: task}],
+    max_tokens=<span class="number">1024</span>,
+)
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">6</div>
+                <div class="step-content">
+                    <h3>Log Event (M3)</h3>
+                    <p>M3 Observability logs the execution:</p>
+                    <div class="code-block">
+{
+  <span class="string">"event"</span>: <span class="string">"tool_execution"</span>,
+  <span class="string">"tool_id"</span>: <span class="string">"claude_code_generation"</span>,
+  <span class="string">"provider"</span>: <span class="string">"anthropic"</span>,
+  <span class="string">"success"</span>: <span class="keyword">true</span>,
+  <span class="string">"latency_ms"</span>: <span class="number">1247</span>,
+  <span class="string">"tokens"</span>: {<span class="string">"input"</span>: <span class="number">23</span>, <span class="string">"output"</span>: <span class="number">287</span>}
+}
+                    </div>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">7</div>
+                <div class="step-content">
+                    <h3>Update Learning (M5)</h3>
+                    <p>M5 stores the successful outcome:</p>
+                    <ul style="color: var(--text-muted); padding-left: 1.5rem; margin-top: 0.5rem;">
+                        <li>Vector DB: Store task embedding for similarity search</li>
+                        <li>Graph DB: Create Tool->Task->Success relationship</li>
+                        <li>Learning boost for claude_code_generation: 1.2 -> 1.25</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="step">
+                <div class="step-number">8</div>
+                <div class="step-content">
+                    <h3>Return Response</h3>
+                    <div class="result-box">
+                        <h4>MCPResponse</h4>
+                        <p><strong>tool_used:</strong> claude_code_generation</p>
+                        <p><strong>provider:</strong> anthropic</p>
+                        <p><strong>tokens_used:</strong> TokenUsage(input=23, output=287)</p>
+                        <p><strong>result:</strong></p>
+                        <div class="code-block">
+<span class="keyword">def</span> <span class="function">fibonacci</span>(n: <span class="keyword">int</span>) -> <span class="keyword">int</span>:
+    <span class="string">"""Calculate the nth Fibonacci number."""</span>
+    <span class="keyword">if</span> n <= <span class="number">1</span>:
+        <span class="keyword">return</span> n
+    <span class="keyword">return</span> fibonacci(n - <span class="number">1</span>) + fibonacci(n - <span class="number">2</span>)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>What Happens Next Time?</h2>
+            <p>When a similar task comes in (e.g., "Write a sorting function"):</p>
+            <ol style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li>M5 finds similar past tasks via vector similarity</li>
+                <li>claude_code_generation has boosted score (1.25x from learning)</li>
+                <li>Tool selection is faster and more confident</li>
+                <li>Success reinforces the learning boost further</li>
+            </ol>
+        </section>
+
+        <section class="card">
+            <h2>Failure Scenario</h2>
+            <p>If the tool fails (timeout, error, poor quality):</p>
+            <ol style="color: var(--text-muted); padding-left: 1.5rem;">
+                <li>M3 logs failure event</li>
+                <li>M5 records negative outcome</li>
+                <li>Learning boost decreases (e.g., 1.25 -> 1.15)</li>
+                <li>If retry enabled, fallback to next-best tool</li>
+                <li>Over time, unreliable tools get lower scores</li>
+            </ol>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="learning-loop.html">Previous: Learning Loop</a> |
+            <a href="../">Back to Demos</a>
+        </p>
+    </footer>
+</body>
+</html>

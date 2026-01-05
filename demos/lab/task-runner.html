@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Runner - Demo Lab</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+        }
+
+        .task-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .task-panel h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+        }
+
+        textarea {
+            width: 100%;
+            padding: 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .capability-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+        }
+
+        .chip.selected {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Results */
+        .results-panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            display: none;
+        }
+
+        .results-panel.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .result-header .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--success);
+        }
+
+        .tool-result {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .tool-result .name {
+            font-size: 1.25rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-result .provider {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .score-breakdown {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .score-item {
+            background: var(--bg-card);
+            padding: 0.75rem;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .score-item .label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .score-item .value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        /* All tools comparison */
+        .all-tools {
+            margin-top: 1.5rem;
+        }
+
+        .all-tools h3 {
+            margin-bottom: 1rem;
+            color: var(--text-muted);
+        }
+
+        .tool-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem;
+            background: var(--bg);
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .tool-row.winner {
+            border: 1px solid var(--success);
+        }
+
+        .tool-row .tool-name {
+            width: 200px;
+        }
+
+        .tool-row .score-bar {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .tool-row .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 0.5s ease-out;
+        }
+
+        .tool-row .score-value {
+            width: 60px;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        /* Execution log */
+        .exec-log {
+            margin-top: 1.5rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .log-line {
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .log-line .time {
+            color: var(--warning);
+        }
+
+        .log-line .event {
+            color: var(--success);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Task Runner</h1>
+            <p style="color: var(--text-muted);">Submit a task and watch the orchestrator select the best tool</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Lab Home</a></li>
+                <li><a href="learning-viz.html">Learning</a></li>
+                <li><a href="score-decay.html">Decay</a></li>
+            </ul>
+        </nav>
+
+        <div class="task-panel">
+            <h2>Submit Task</h2>
+
+            <div class="input-group">
+                <label>Task Description:</label>
+                <textarea id="taskInput" placeholder="e.g., Write a function to sort an array...">Write a Python function to calculate Fibonacci numbers</textarea>
+            </div>
+
+            <div class="input-group">
+                <label>Required Capabilities:</label>
+                <div class="capability-chips">
+                    <span class="chip" data-cap="calculation">calculation</span>
+                    <span class="chip selected" data-cap="code_generation">code_generation</span>
+                    <span class="chip" data-cap="code_analysis">code_analysis</span>
+                    <span class="chip" data-cap="text_analysis">text_analysis</span>
+                    <span class="chip" data-cap="general">general</span>
+                    <span class="chip" data-cap="testing">testing</span>
+                </div>
+            </div>
+
+            <button id="runBtn" onclick="runTask()">Execute Task</button>
+        </div>
+
+        <div class="results-panel" id="resultsPanel">
+            <div class="result-header">
+                <h2>Results</h2>
+                <div class="status">
+                    <span>&#10003;</span>
+                    <span id="statusText">Tool Selected</span>
+                </div>
+            </div>
+
+            <div class="tool-result">
+                <div class="name" id="selectedTool">claude_code_generation</div>
+                <div class="provider" id="selectedProvider">Provider: anthropic</div>
+
+                <div class="score-breakdown">
+                    <div class="score-item">
+                        <div class="label">Capability</div>
+                        <div class="value" id="capScore">1.0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Provider</div>
+                        <div class="value" id="provScore">x1.5</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Internal</div>
+                        <div class="value" id="intScore">x1.0</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Learning</div>
+                        <div class="value" id="learnScore">x1.2</div>
+                    </div>
+                    <div class="score-item">
+                        <div class="label">Final</div>
+                        <div class="value" id="finalScore">1.80</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="all-tools">
+                <h3>All Matching Tools</h3>
+                <div id="toolComparison"></div>
+            </div>
+
+            <div class="exec-log" id="execLog"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="index.html">Back to Lab</a> |
+            <a href="../explain/">How It Works</a>
+        </p>
+    </footer>
+
+    <script>
+        // Tool database with learning scores
+        const toolDB = {
+            internal_calculator: {
+                provider: 'internal',
+                capabilities: ['calculation', 'math'],
+                baseScore: 1.0,
+                learningBoost: 1.1
+            },
+            internal_echo: {
+                provider: 'internal',
+                capabilities: ['testing', 'echo'],
+                baseScore: 1.0,
+                learningBoost: 1.0
+            },
+            claude_code_generation: {
+                provider: 'anthropic',
+                capabilities: ['code_generation', 'coding'],
+                baseScore: 1.0,
+                learningBoost: 1.2
+            },
+            claude_code_analysis: {
+                provider: 'anthropic',
+                capabilities: ['code_analysis', 'code_review'],
+                baseScore: 1.0,
+                learningBoost: 1.15
+            },
+            claude_text_analysis: {
+                provider: 'anthropic',
+                capabilities: ['text_analysis', 'text_summarization'],
+                baseScore: 1.0,
+                learningBoost: 1.1
+            },
+            claude_general: {
+                provider: 'anthropic',
+                capabilities: ['general', 'chat', 'reasoning'],
+                baseScore: 1.0,
+                learningBoost: 1.05
+            }
+        };
+
+        // Selected capabilities
+        let selectedCaps = ['code_generation'];
+
+        // Chip selection
+        document.querySelectorAll('.chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('selected');
+                const cap = chip.dataset.cap;
+                if (selectedCaps.includes(cap)) {
+                    selectedCaps = selectedCaps.filter(c => c !== cap);
+                } else {
+                    selectedCaps.push(cap);
+                }
+            });
+        });
+
+        function log(message, type = 'info') {
+            const logEl = document.getElementById('execLog');
+            const time = new Date().toISOString().split('T')[1].split('.')[0];
+            logEl.innerHTML += `<div class="log-line"><span class="time">[${time}]</span> <span class="event">${message}</span></div>`;
+            logEl.scrollTop = logEl.scrollHeight;
+        }
+
+        function runTask() {
+            const task = document.getElementById('taskInput').value;
+            if (!task || selectedCaps.length === 0) {
+                alert('Please enter a task and select at least one capability');
+                return;
+            }
+
+            // Reset log
+            document.getElementById('execLog').innerHTML = '';
+
+            log('Starting task execution...');
+            log(`Task: "${task.substring(0, 50)}..."`);
+            log(`Required capabilities: [${selectedCaps.join(', ')}]`);
+
+            // Find matching tools
+            const matches = [];
+            for (const [toolId, tool] of Object.entries(toolDB)) {
+                const capMatch = selectedCaps.some(cap => tool.capabilities.includes(cap));
+                if (capMatch) {
+                    // Calculate score
+                    let capScore = selectedCaps.filter(c => tool.capabilities.includes(c)).length;
+                    let provWeight = tool.provider === 'anthropic' ? 1.5 : 1.0;
+                    let intBonus = tool.provider === 'internal' ? 1.2 : 1.0;
+                    let learnBoost = tool.learningBoost;
+                    let finalScore = capScore * provWeight * intBonus * learnBoost;
+
+                    matches.push({
+                        id: toolId,
+                        provider: tool.provider,
+                        capScore,
+                        provWeight,
+                        intBonus,
+                        learnBoost,
+                        finalScore
+                    });
+                }
+            }
+
+            log(`Found ${matches.length} matching tools`);
+
+            // Sort by score
+            matches.sort((a, b) => b.finalScore - a.finalScore);
+
+            if (matches.length === 0) {
+                log('ERROR: No matching tools found', 'error');
+                return;
+            }
+
+            // Winner
+            const winner = matches[0];
+            log(`Selected: ${winner.id} (score: ${winner.finalScore.toFixed(2)})`);
+            log(`Provider: ${winner.provider}`);
+
+            // Show results
+            document.getElementById('resultsPanel').classList.add('visible');
+            document.getElementById('selectedTool').textContent = winner.id;
+            document.getElementById('selectedProvider').textContent = `Provider: ${winner.provider}`;
+            document.getElementById('capScore').textContent = winner.capScore.toFixed(1);
+            document.getElementById('provScore').textContent = `x${winner.provWeight.toFixed(1)}`;
+            document.getElementById('intScore').textContent = `x${winner.intBonus.toFixed(1)}`;
+            document.getElementById('learnScore').textContent = `x${winner.learnBoost.toFixed(2)}`;
+            document.getElementById('finalScore').textContent = winner.finalScore.toFixed(2);
+
+            // Tool comparison
+            const compHtml = matches.map((m, i) => {
+                const pct = (m.finalScore / 3) * 100;
+                const isWinner = i === 0 ? 'winner' : '';
+                return `
+                    <div class="tool-row ${isWinner}">
+                        <div class="tool-name">${m.id}</div>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${pct}%"></div>
+                        </div>
+                        <div class="score-value">${m.finalScore.toFixed(2)}</div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('toolComparison').innerHTML = compHtml;
+
+            // Simulate execution
+            setTimeout(() => {
+                log('Executing via ' + winner.provider + ' adapter...');
+            }, 300);
+
+            setTimeout(() => {
+                log('Response received (1247ms)');
+                log('Tokens used: input=23, output=287');
+                log('Recording outcome for learning (M5)...');
+            }, 600);
+
+            setTimeout(() => {
+                log('Task completed successfully');
+            }, 900);
+        }
+    </script>
+</body>
+</html>

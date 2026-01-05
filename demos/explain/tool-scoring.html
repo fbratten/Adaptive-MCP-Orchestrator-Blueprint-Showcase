@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tool Scoring - MCP Orchestrator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .formula {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.95rem;
+            margin: 1rem 0;
+        }
+
+        .formula .var { color: var(--primary); }
+        .formula .op { color: var(--warning); }
+        .formula .comment { color: var(--text-muted); font-style: italic; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .badge-success { background: rgba(34, 197, 94, 0.2); color: var(--success); }
+        .badge-primary { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+        .badge-warning { background: rgba(245, 158, 11, 0.2); color: var(--warning); }
+
+        /* Interactive Demo */
+        .scoring-demo {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+        }
+
+        .score-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .score-label {
+            width: 180px;
+            color: var(--text-muted);
+        }
+
+        .score-bar-container {
+            flex: 1;
+            height: 24px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .score-bar {
+            height: 100%;
+            transition: width 0.5s ease-out;
+        }
+
+        .score-value {
+            width: 60px;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        .bar-capability { background: linear-gradient(90deg, #6366f1, #8b5cf6); }
+        .bar-provider { background: linear-gradient(90deg, #22c55e, #4ade80); }
+        .bar-internal { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+        .bar-learning { background: linear-gradient(90deg, #ec4899, #f472b6); }
+        .bar-total { background: linear-gradient(90deg, #6366f1, #22c55e); }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Tool Scoring Algorithm</h1>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Overview</a></li>
+                <li><a href="tool-scoring.html" class="active">Tool Scoring</a></li>
+                <li><a href="learning-loop.html">Learning Loop</a></li>
+                <li><a href="example-flow.html">Example Flow</a></li>
+            </ul>
+        </nav>
+
+        <section class="card">
+            <h2>Scoring Formula</h2>
+            <p>Each tool receives a score based on multiple weighted factors:</p>
+            <div class="formula">
+<span class="var">final_score</span> <span class="op">=</span> <span class="var">capability_score</span> <span class="op">*</span> <span class="var">provider_weight</span> <span class="op">*</span> <span class="var">internal_bonus</span> <span class="op">*</span> <span class="var">learning_boost</span>
+
+<span class="comment"># Where:</span>
+<span class="var">capability_score</span> <span class="op">=</span> sum(match_weight for each capability match)  <span class="comment"># Default: 1.0 per match</span>
+<span class="var">provider_weight</span>  <span class="op">=</span> 1.5 if Claude, 1.0 otherwise              <span class="comment"># D-M1-003</span>
+<span class="var">internal_bonus</span>   <span class="op">=</span> 1.2 if internal tool, 1.0 otherwise        <span class="comment"># D-M1-004</span>
+<span class="var">learning_boost</span>   <span class="op">=</span> 0.5 to 2.0 based on historical success      <span class="comment"># M5 influence</span>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Scoring Factors</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Factor</th>
+                        <th>Weight</th>
+                        <th>Decision</th>
+                        <th>Rationale</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Capability Match</td>
+                        <td><span class="badge badge-primary">1.0 each</span></td>
+                        <td>-</td>
+                        <td>Base score from matching capability tags</td>
+                    </tr>
+                    <tr>
+                        <td>Claude Provider</td>
+                        <td><span class="badge badge-success">1.5x</span></td>
+                        <td>D-M1-003</td>
+                        <td>Tool calling maturity, project requirement</td>
+                    </tr>
+                    <tr>
+                        <td>Internal Tool</td>
+                        <td><span class="badge badge-warning">1.2x</span></td>
+                        <td>D-M1-004</td>
+                        <td>Lower latency, no token costs, more control</td>
+                    </tr>
+                    <tr>
+                        <td>Learning Boost</td>
+                        <td><span class="badge badge-primary">0.5-2.0x</span></td>
+                        <td>D-M5-004</td>
+                        <td>Historical success rate, temporal weighting</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="card">
+            <h2>Interactive Example</h2>
+            <p>Task: "Generate Python code" with capability: <code>code_generation</code></p>
+
+            <div class="scoring-demo">
+                <h3 style="margin-bottom: 1rem; color: var(--text-muted);">claude_code_generation</h3>
+
+                <div class="score-row">
+                    <div class="score-label">Capability Match</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar bar-capability" style="width: 40%"></div>
+                    </div>
+                    <div class="score-value">1.0</div>
+                </div>
+
+                <div class="score-row">
+                    <div class="score-label">Claude Preference</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar bar-provider" style="width: 60%"></div>
+                    </div>
+                    <div class="score-value">x1.5</div>
+                </div>
+
+                <div class="score-row">
+                    <div class="score-label">Internal Bonus</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar bar-internal" style="width: 0%"></div>
+                    </div>
+                    <div class="score-value">x1.0</div>
+                </div>
+
+                <div class="score-row">
+                    <div class="score-label">Learning Boost</div>
+                    <div class="score-bar-container">
+                        <div class="score-bar bar-learning" style="width: 54%"></div>
+                    </div>
+                    <div class="score-value">x1.35</div>
+                </div>
+
+                <div class="score-row" style="border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 0.5rem;">
+                    <div class="score-label"><strong>Final Score</strong></div>
+                    <div class="score-bar-container">
+                        <div class="score-bar bar-total" style="width: 81%"></div>
+                    </div>
+                    <div class="score-value"><strong>2.03</strong></div>
+                </div>
+            </div>
+
+            <p style="margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem;">
+                Calculation: 1.0 * 1.5 * 1.0 * 1.35 = 2.03
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Tool Comparison</h2>
+            <p>Same task, different tools competing:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tool</th>
+                        <th>Cap</th>
+                        <th>Prov</th>
+                        <th>Int</th>
+                        <th>Learn</th>
+                        <th>Final</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>claude_code_generation</td>
+                        <td>1.0</td>
+                        <td>x1.5</td>
+                        <td>x1.0</td>
+                        <td>x1.35</td>
+                        <td><strong style="color: var(--success)">2.03</strong></td>
+                    </tr>
+                    <tr>
+                        <td>openai_code_gen</td>
+                        <td>1.0</td>
+                        <td>x1.0</td>
+                        <td>x1.0</td>
+                        <td>x1.10</td>
+                        <td>1.10</td>
+                    </tr>
+                    <tr>
+                        <td>internal_codegen</td>
+                        <td>1.0</td>
+                        <td>x1.0</td>
+                        <td>x1.2</td>
+                        <td>x0.80</td>
+                        <td>0.96</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p style="color: var(--text-muted); font-size: 0.9rem;">
+                Winner: claude_code_generation with score 2.03
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="index.html">Back to Overview</a> |
+            <a href="learning-loop.html">Next: Learning Loop</a>
+        </p>
+    </footer>
+</body>
+</html>

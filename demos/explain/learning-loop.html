@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Loop - MCP Orchestrator</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--primary);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .card h2 {
+            margin-bottom: 1rem;
+        }
+
+        .card p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        /* Feedback Loop Diagram */
+        .loop-diagram {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .loop-step {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .step-box {
+            flex: 1;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .step-box:hover {
+            border-color: var(--primary);
+            transform: scale(1.02);
+        }
+
+        .step-box .module {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .step-box .action {
+            font-weight: 500;
+        }
+
+        .arrow {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .arrow.down {
+            transform: rotate(90deg);
+        }
+
+        .loop-return {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            color: var(--success);
+            margin-top: 1rem;
+            padding: 0.5rem 1rem;
+            border: 1px dashed var(--success);
+            border-radius: 8px;
+        }
+
+        /* Timeline */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--border);
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 1.5rem;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -2rem;
+            top: 0.25rem;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: 2px solid var(--bg);
+        }
+
+        .timeline-item.success::before {
+            background: var(--success);
+        }
+
+        .timeline-item.warning::before {
+            background: var(--warning);
+        }
+
+        .timeline-time {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.25rem;
+        }
+
+        .timeline-content {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        /* Decay Visualization */
+        .decay-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            height: 100px;
+            padding: 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .decay-bar {
+            flex: 1;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s;
+            position: relative;
+        }
+
+        .decay-bar::after {
+            content: attr(data-day);
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Learning Loop</h1>
+            <p style="color: var(--text-muted);">How M3, M5, and M1 work together</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Overview</a></li>
+                <li><a href="tool-scoring.html">Tool Scoring</a></li>
+                <li><a href="learning-loop.html" class="active">Learning Loop</a></li>
+                <li><a href="example-flow.html">Example Flow</a></li>
+            </ul>
+        </nav>
+
+        <section class="card">
+            <h2>The Feedback Cycle</h2>
+            <p>Every task execution creates learning data that improves future tool selection:</p>
+
+            <div class="loop-diagram">
+                <div class="loop-step">
+                    <div class="step-box">
+                        <div class="module">M1 Core</div>
+                        <div class="action">Execute Task</div>
+                    </div>
+                </div>
+
+                <div class="arrow down">-></div>
+
+                <div class="loop-step">
+                    <div class="step-box">
+                        <div class="module">M3 Observability</div>
+                        <div class="action">Log Event</div>
+                    </div>
+                </div>
+
+                <div class="arrow down">-></div>
+
+                <div class="loop-step">
+                    <div class="step-box">
+                        <div class="module">M5 Learning</div>
+                        <div class="action">Store Outcome</div>
+                    </div>
+                </div>
+
+                <div class="arrow down">-></div>
+
+                <div class="loop-step">
+                    <div class="step-box">
+                        <div class="module">M5 Learning</div>
+                        <div class="action">Update Score Boost</div>
+                    </div>
+                </div>
+
+                <div class="loop-return">
+                    Next Request -> M1 uses boosted scores
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>What Gets Stored</h2>
+            <p>M5 maintains two data stores:</p>
+
+            <table style="width: 100%; border-collapse: collapse; margin: 1rem 0;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <th style="text-align: left; padding: 0.75rem;">Store</th>
+                        <th style="text-align: left; padding: 0.75rem;">Technology</th>
+                        <th style="text-align: left; padding: 0.75rem;">Purpose</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 0.75rem;"><strong>Vector DB</strong></td>
+                        <td style="padding: 0.75rem;">LanceDB</td>
+                        <td style="padding: 0.75rem;">Task embeddings for semantic similarity</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding: 0.75rem;"><strong>Graph DB</strong></td>
+                        <td style="padding: 0.75rem;">Neo4j</td>
+                        <td style="padding: 0.75rem;">Tool-Task-Outcome relationships</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <p>For each execution, we store:</p>
+            <ul style="color: var(--text-muted); padding-left: 1.5rem; margin-top: 0.5rem;">
+                <li>Task description (embedded to 384-dim vector)</li>
+                <li>Tool selected</li>
+                <li>Capabilities matched</li>
+                <li>Success/failure outcome</li>
+                <li>Timestamp (for temporal decay)</li>
+            </ul>
+        </section>
+
+        <section class="card">
+            <h2>Score Boost Calculation</h2>
+            <p>The learning boost ranges from 0.5x to 2.0x based on historical success:</p>
+
+            <div style="background: var(--bg); border: 1px solid var(--border); border-radius: 8px; padding: 1.5rem; font-family: monospace; font-size: 0.9rem;">
+<span style="color: var(--primary);">success_rate</span> = successes / total_executions
+<span style="color: var(--primary);">temporal_weight</span> = decay_factor ^ days_since_execution
+<span style="color: var(--primary);">weighted_rate</span> = sum(outcome * temporal_weight) / sum(temporal_weight)
+
+<span style="color: var(--text-muted);"># Map to boost range [0.5, 2.0]</span>
+<span style="color: var(--primary);">learning_boost</span> = 0.5 + (weighted_rate * 1.5)
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Temporal Decay</h2>
+            <p>Recent outcomes matter more than old ones. Default decay factor: 0.95 per day.</p>
+
+            <div class="decay-chart">
+                <div class="decay-bar" style="height: 100%;" data-day="Today"></div>
+                <div class="decay-bar" style="height: 95%;" data-day="1d"></div>
+                <div class="decay-bar" style="height: 90%;" data-day="2d"></div>
+                <div class="decay-bar" style="height: 86%;" data-day="3d"></div>
+                <div class="decay-bar" style="height: 81%;" data-day="4d"></div>
+                <div class="decay-bar" style="height: 77%;" data-day="5d"></div>
+                <div class="decay-bar" style="height: 74%;" data-day="6d"></div>
+                <div class="decay-bar" style="height: 70%;" data-day="7d"></div>
+                <div class="decay-bar" style="height: 48%;" data-day="14d"></div>
+                <div class="decay-bar" style="height: 23%;" data-day="30d"></div>
+            </div>
+            <p style="margin-top: 2rem; color: var(--text-muted); font-size: 0.9rem;">
+                After 30 days, an outcome carries only ~23% of its original weight.
+                After 90 days, data is cleaned up (M5-FIX-001).
+            </p>
+        </section>
+
+        <section class="card">
+            <h2>Example Timeline</h2>
+            <p>How tool scores evolve over time:</p>
+
+            <div class="timeline" style="margin-top: 1rem;">
+                <div class="timeline-item success">
+                    <div class="timeline-time">Day 1, 10:00 AM</div>
+                    <div class="timeline-content">
+                        Task: "Generate Fibonacci function"<br>
+                        Tool: claude_code_generation<br>
+                        <strong style="color: var(--success);">Success</strong> - boost increases to 1.1x
+                    </div>
+                </div>
+
+                <div class="timeline-item success">
+                    <div class="timeline-time">Day 1, 2:00 PM</div>
+                    <div class="timeline-content">
+                        Task: "Write sorting algorithm"<br>
+                        Tool: claude_code_generation<br>
+                        <strong style="color: var(--success);">Success</strong> - boost increases to 1.25x
+                    </div>
+                </div>
+
+                <div class="timeline-item warning">
+                    <div class="timeline-time">Day 2, 9:00 AM</div>
+                    <div class="timeline-content">
+                        Task: "Generate complex regex"<br>
+                        Tool: claude_code_generation<br>
+                        <strong style="color: var(--warning);">Failure</strong> - boost decreases to 1.10x
+                    </div>
+                </div>
+
+                <div class="timeline-item success">
+                    <div class="timeline-time">Day 3, 11:00 AM</div>
+                    <div class="timeline-content">
+                        Task: "Create REST API handler"<br>
+                        Tool: claude_code_generation<br>
+                        <strong style="color: var(--success);">Success</strong> - boost increases to 1.20x
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="tool-scoring.html">Previous: Tool Scoring</a> |
+            <a href="example-flow.html">Next: Example Flow</a>
+        </p>
+    </footer>
+</body>
+</html>

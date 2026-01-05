@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Visualization - Demo Lab</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel h2 {
+            margin-bottom: 1rem;
+        }
+
+        /* Score cards */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .score-card {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .score-card:hover {
+            border-color: var(--primary);
+        }
+
+        .score-card .tool-name {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .score-card .boost-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .score-card .boost-value.high { color: var(--success); }
+        .score-card .boost-value.low { color: var(--warning); }
+
+        .score-card .trend {
+            font-size: 0.85rem;
+        }
+
+        .score-card .trend.up { color: var(--success); }
+        .score-card .trend.down { color: var(--error); }
+
+        /* History chart */
+        .chart-container {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            height: 250px;
+            position: relative;
+        }
+
+        .chart-line {
+            position: absolute;
+            bottom: 40px;
+            left: 60px;
+            right: 20px;
+            top: 20px;
+        }
+
+        .chart-point {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+            transform: translate(-50%, 50%);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .chart-point:hover {
+            transform: translate(-50%, 50%) scale(1.5);
+        }
+
+        .chart-point.success { background: var(--success); }
+        .chart-point.failure { background: var(--error); }
+
+        .chart-axis {
+            position: absolute;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        .y-axis { left: 0; top: 50%; transform: translateY(-50%); }
+        .x-axis { bottom: 10px; left: 50%; transform: translateX(-50%); }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button.success { background: var(--success); }
+        button.failure { background: var(--error); }
+
+        select {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: var(--text);
+        }
+
+        /* Event log */
+        .event-log {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+
+        .event {
+            padding: 0.25rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .event:last-child {
+            border-bottom: none;
+        }
+
+        .event .time { color: var(--warning); }
+        .event .success { color: var(--success); }
+        .event .failure { color: var(--error); }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Learning Visualization</h1>
+            <p style="color: var(--text-muted);">See how tool scores evolve based on execution history</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Lab Home</a></li>
+                <li><a href="task-runner.html">Task Runner</a></li>
+                <li><a href="score-decay.html">Decay</a></li>
+            </ul>
+        </nav>
+
+        <div class="panel">
+            <h2>Current Learning Boosts</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                Range: 0.5x (unreliable) to 2.0x (highly reliable)
+            </p>
+
+            <div class="score-grid" id="scoreGrid"></div>
+        </div>
+
+        <div class="panel">
+            <h2>Simulate Executions</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                Add success or failure events to see how learning boosts change
+            </p>
+
+            <div class="controls">
+                <select id="toolSelect">
+                    <option value="claude_code_generation">claude_code_generation</option>
+                    <option value="claude_code_analysis">claude_code_analysis</option>
+                    <option value="claude_text_analysis">claude_text_analysis</option>
+                    <option value="claude_general">claude_general</option>
+                    <option value="internal_calculator">internal_calculator</option>
+                    <option value="internal_echo">internal_echo</option>
+                </select>
+                <button class="success" onclick="addEvent(true)">+ Success</button>
+                <button class="failure" onclick="addEvent(false)">+ Failure</button>
+                <button onclick="resetAll()">Reset All</button>
+            </div>
+
+            <div class="event-log" id="eventLog">
+                <div class="event">
+                    <span class="time">[System]</span> Learning system initialized
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Score History: <span id="chartTool">claude_code_generation</span></h2>
+
+            <div class="chart-container">
+                <div class="chart-axis y-axis">Boost</div>
+                <div class="chart-axis x-axis">Time (executions)</div>
+                <div class="chart-line" id="chartLine"></div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="index.html">Back to Lab</a> |
+            <a href="../explain/learning-loop.html">How Learning Works</a>
+        </p>
+    </footer>
+
+    <script>
+        // Tool data
+        const tools = {
+            claude_code_generation: { boost: 1.2, history: [1.0, 1.1, 1.15, 1.2], successes: 8, total: 10 },
+            claude_code_analysis: { boost: 1.15, history: [1.0, 1.1, 1.15], successes: 6, total: 7 },
+            claude_text_analysis: { boost: 1.1, history: [1.0, 1.05, 1.1], successes: 5, total: 6 },
+            claude_general: { boost: 1.05, history: [1.0, 1.05], successes: 3, total: 4 },
+            internal_calculator: { boost: 1.1, history: [1.0, 1.1], successes: 10, total: 10 },
+            internal_echo: { boost: 1.0, history: [1.0], successes: 2, total: 2 }
+        };
+
+        function renderScoreGrid() {
+            const grid = document.getElementById('scoreGrid');
+            grid.innerHTML = Object.entries(tools).map(([id, data]) => {
+                const boostClass = data.boost >= 1.5 ? 'high' : (data.boost < 0.8 ? 'low' : '');
+                const trend = data.history.length > 1 ?
+                    (data.history[data.history.length-1] > data.history[data.history.length-2] ? 'up' : 'down') : '';
+                const trendIcon = trend === 'up' ? '&#9650;' : (trend === 'down' ? '&#9660;' : '');
+
+                return `
+                    <div class="score-card" onclick="selectTool('${id}')">
+                        <div class="tool-name">${id}</div>
+                        <div class="boost-value ${boostClass}">${data.boost.toFixed(2)}x</div>
+                        <div class="trend ${trend}">${trendIcon} ${(data.successes / data.total * 100).toFixed(0)}% success</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderChart(toolId) {
+            document.getElementById('chartTool').textContent = toolId;
+            const data = tools[toolId];
+            const chartLine = document.getElementById('chartLine');
+            const width = chartLine.clientWidth;
+            const height = chartLine.clientHeight;
+
+            const points = data.history.map((boost, i) => {
+                const x = data.history.length > 1 ? (i / (data.history.length - 1)) * width : width / 2;
+                const y = height - ((boost - 0.5) / 1.5) * height; // 0.5 to 2.0 range
+                const type = boost > data.history[Math.max(0, i-1)] ? 'success' : (i > 0 ? 'failure' : '');
+                return `<div class="chart-point ${type}" style="left: ${x}px; bottom: ${height - y}px" title="Boost: ${boost.toFixed(2)}"></div>`;
+            }).join('');
+
+            chartLine.innerHTML = points;
+        }
+
+        function selectTool(toolId) {
+            document.getElementById('toolSelect').value = toolId;
+            renderChart(toolId);
+        }
+
+        function addEvent(success) {
+            const toolId = document.getElementById('toolSelect').value;
+            const tool = tools[toolId];
+
+            // Update stats
+            tool.total++;
+            if (success) tool.successes++;
+
+            // Calculate new boost (simplified)
+            const rate = tool.successes / tool.total;
+            const newBoost = Math.max(0.5, Math.min(2.0, 0.5 + rate * 1.5));
+            tool.boost = newBoost;
+            tool.history.push(newBoost);
+
+            // Keep history reasonable
+            if (tool.history.length > 20) tool.history.shift();
+
+            // Log event
+            const time = new Date().toISOString().split('T')[1].split('.')[0];
+            const eventClass = success ? 'success' : 'failure';
+            const eventText = success ? 'SUCCESS' : 'FAILURE';
+            const log = document.getElementById('eventLog');
+            log.innerHTML = `<div class="event"><span class="time">[${time}]</span> ${toolId}: <span class="${eventClass}">${eventText}</span> -> boost=${newBoost.toFixed(2)}</div>` + log.innerHTML;
+
+            // Re-render
+            renderScoreGrid();
+            renderChart(toolId);
+        }
+
+        function resetAll() {
+            Object.values(tools).forEach(t => {
+                t.boost = 1.0;
+                t.history = [1.0];
+                t.successes = 1;
+                t.total = 1;
+            });
+            document.getElementById('eventLog').innerHTML = '<div class="event"><span class="time">[System]</span> All learning data reset</div>';
+            renderScoreGrid();
+            renderChart(document.getElementById('toolSelect').value);
+        }
+
+        // Initial render
+        renderScoreGrid();
+        renderChart('claude_code_generation');
+    </script>
+</body>
+</html>

@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Score Decay - Demo Lab</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            background: var(--primary);
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel h2 {
+            margin-bottom: 1rem;
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            color: var(--text-muted);
+        }
+
+        input[type="range"] {
+            width: 150px;
+            accent-color: var(--primary);
+        }
+
+        .value-display {
+            min-width: 60px;
+            padding: 0.25rem 0.5rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            text-align: center;
+            font-family: monospace;
+        }
+
+        /* Decay chart */
+        .decay-chart {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 2rem;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            height: 300px;
+            position: relative;
+        }
+
+        .decay-bar-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            max-width: 60px;
+        }
+
+        .decay-bar {
+            width: 40px;
+            background: linear-gradient(180deg, var(--primary), var(--primary-dark));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.3s ease;
+            position: relative;
+        }
+
+        .decay-bar::after {
+            content: attr(data-pct);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .decay-label {
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .chart-baseline {
+            position: absolute;
+            bottom: 30px;
+            left: 2rem;
+            right: 2rem;
+            height: 1px;
+            background: var(--border);
+        }
+
+        /* Formula */
+        .formula {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            margin: 1rem 0;
+        }
+
+        .formula .var { color: var(--primary); }
+        .formula .op { color: var(--warning); }
+
+        /* Example table */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th {
+            color: var(--text-muted);
+        }
+
+        /* Cleanup info */
+        .cleanup-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid var(--warning);
+            border-radius: 8px;
+        }
+
+        .cleanup-info .icon {
+            font-size: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Score Decay Visualization</h1>
+            <p style="color: var(--text-muted);">How temporal weighting affects learning over time</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Lab Home</a></li>
+                <li><a href="task-runner.html">Task Runner</a></li>
+                <li><a href="learning-viz.html">Learning</a></li>
+            </ul>
+        </nav>
+
+        <div class="panel">
+            <h2>Temporal Decay Factor</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                Recent outcomes matter more than old ones. The decay factor determines how quickly old data fades.
+            </p>
+
+            <div class="formula">
+<span class="var">temporal_weight</span> <span class="op">=</span> <span class="var">decay_factor</span> <span class="op">^</span> <span class="var">days_since_execution</span>
+            </div>
+
+            <div class="controls">
+                <div class="control-group">
+                    <label>Decay Factor:</label>
+                    <input type="range" id="decaySlider" min="0.80" max="0.99" step="0.01" value="0.95">
+                    <div class="value-display" id="decayValue">0.95</div>
+                </div>
+            </div>
+
+            <div class="decay-chart">
+                <div class="chart-baseline"></div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar0" style="height: 100%;" data-pct="100%"></div>
+                    <div class="decay-label">Today</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar1" style="height: 95%;" data-pct="95%"></div>
+                    <div class="decay-label">1 day</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar3" style="height: 86%;" data-pct="86%"></div>
+                    <div class="decay-label">3 days</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar7" style="height: 70%;" data-pct="70%"></div>
+                    <div class="decay-label">7 days</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar14" style="height: 49%;" data-pct="49%"></div>
+                    <div class="decay-label">14 days</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar30" style="height: 21%;" data-pct="21%"></div>
+                    <div class="decay-label">30 days</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar60" style="height: 4%;" data-pct="4%"></div>
+                    <div class="decay-label">60 days</div>
+                </div>
+                <div class="decay-bar-wrapper">
+                    <div class="decay-bar" id="bar90" style="height: 1%;" data-pct="1%"></div>
+                    <div class="decay-label">90 days</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Weighted Score Calculation</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+                Example: A tool with mixed recent history
+            </p>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Days Ago</th>
+                        <th>Outcome</th>
+                        <th>Raw Value</th>
+                        <th>Weight</th>
+                        <th>Weighted</th>
+                    </tr>
+                </thead>
+                <tbody id="exampleTable">
+                    <tr>
+                        <td>0 (today)</td>
+                        <td style="color: var(--success);">Success</td>
+                        <td>1.0</td>
+                        <td id="w0">1.00</td>
+                        <td id="wv0">1.00</td>
+                    </tr>
+                    <tr>
+                        <td>1</td>
+                        <td style="color: var(--success);">Success</td>
+                        <td>1.0</td>
+                        <td id="w1">0.95</td>
+                        <td id="wv1">0.95</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td style="color: var(--error);">Failure</td>
+                        <td>0.0</td>
+                        <td id="w3">0.86</td>
+                        <td id="wv3">0.00</td>
+                    </tr>
+                    <tr>
+                        <td>7</td>
+                        <td style="color: var(--success);">Success</td>
+                        <td>1.0</td>
+                        <td id="w7">0.70</td>
+                        <td id="wv7">0.70</td>
+                    </tr>
+                    <tr>
+                        <td>14</td>
+                        <td style="color: var(--success);">Success</td>
+                        <td>1.0</td>
+                        <td id="w14">0.49</td>
+                        <td id="wv14">0.49</td>
+                    </tr>
+                    <tr style="font-weight: bold; background: var(--bg);">
+                        <td colspan="3">Totals:</td>
+                        <td id="totalWeight">4.00</td>
+                        <td id="totalWeightedValue">3.14</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <div class="formula">
+<span class="var">weighted_rate</span> <span class="op">=</span> <span id="calcSum">3.14</span> <span class="op">/</span> <span id="calcWeights">4.00</span> <span class="op">=</span> <span id="calcRate">0.79</span>
+<span class="var">learning_boost</span> <span class="op">=</span> 0.5 <span class="op">+</span> (<span id="calcRate2">0.79</span> <span class="op">*</span> 1.5) <span class="op">=</span> <span id="calcBoost">1.68</span>
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Data Cleanup</h2>
+            <div class="cleanup-info">
+                <div class="icon">&#128465;</div>
+                <div>
+                    <strong>M5-FIX-001: Data Cleanup Utility</strong><br>
+                    <span style="color: var(--text-muted);">
+                        Outcomes older than 90 days are automatically cleaned from both LanceDB (vectors) and Neo4j (graph).
+                        This keeps the learning system focused on recent, relevant data.
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="index.html">Back to Lab</a> |
+            <a href="../explain/learning-loop.html">How Learning Works</a>
+        </p>
+    </footer>
+
+    <script>
+        const outcomes = [
+            { days: 0, success: true },
+            { days: 1, success: true },
+            { days: 3, success: false },
+            { days: 7, success: true },
+            { days: 14, success: true }
+        ];
+
+        const barDays = [0, 1, 3, 7, 14, 30, 60, 90];
+
+        function updateDecay() {
+            const decay = parseFloat(document.getElementById('decaySlider').value);
+            document.getElementById('decayValue').textContent = decay.toFixed(2);
+
+            // Update bars
+            barDays.forEach(days => {
+                const weight = Math.pow(decay, days);
+                const pct = Math.round(weight * 100);
+                const bar = document.getElementById('bar' + days);
+                if (bar) {
+                    bar.style.height = pct + '%';
+                    bar.setAttribute('data-pct', pct + '%');
+                }
+            });
+
+            // Update example table
+            let totalWeight = 0;
+            let totalWeightedValue = 0;
+
+            outcomes.forEach(o => {
+                const weight = Math.pow(decay, o.days);
+                const weightedValue = o.success ? weight : 0;
+                totalWeight += weight;
+                totalWeightedValue += weightedValue;
+
+                document.getElementById('w' + o.days).textContent = weight.toFixed(2);
+                document.getElementById('wv' + o.days).textContent = weightedValue.toFixed(2);
+            });
+
+            document.getElementById('totalWeight').textContent = totalWeight.toFixed(2);
+            document.getElementById('totalWeightedValue').textContent = totalWeightedValue.toFixed(2);
+
+            const rate = totalWeightedValue / totalWeight;
+            const boost = 0.5 + (rate * 1.5);
+
+            document.getElementById('calcSum').textContent = totalWeightedValue.toFixed(2);
+            document.getElementById('calcWeights').textContent = totalWeight.toFixed(2);
+            document.getElementById('calcRate').textContent = rate.toFixed(2);
+            document.getElementById('calcRate2').textContent = rate.toFixed(2);
+            document.getElementById('calcBoost').textContent = boost.toFixed(2);
+        }
+
+        document.getElementById('decaySlider').addEventListener('input', updateDecay);
+        updateDecay();
+    </script>
+</body>
+</html>
