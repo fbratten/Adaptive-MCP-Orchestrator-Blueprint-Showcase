@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Provider Selector Lab - projects02</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--info), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+        }
+
+        nav {
+            margin-top: 1rem;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel h2 {
+            color: var(--info);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .providers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .provider-card {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .provider-card:hover {
+            border-color: var(--primary);
+        }
+
+        .provider-card.selected {
+            border-color: var(--info);
+            background: rgba(59,130,246,0.1);
+        }
+
+        .provider-card .name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .provider-card .status {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .provider-card .health {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .health-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .health-dot.warning { background: var(--warning); }
+        .health-dot.danger { background: var(--danger); }
+
+        .slider-group {
+            margin-bottom: 1rem;
+        }
+
+        .slider-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            background: var(--primary);
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .slider-value {
+            min-width: 60px;
+            text-align: right;
+            font-family: monospace;
+        }
+
+        .capability-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .chip:hover {
+            border-color: var(--primary);
+        }
+
+        .chip.selected {
+            background: var(--info);
+            border-color: var(--info);
+            color: white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        .result-panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .result-panel.visible {
+            display: block;
+        }
+
+        .result-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .result-header .status {
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .result-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .detail-item .label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-item .value {
+            font-size: 1.1rem;
+            font-weight: 600;
+        }
+
+        .detail-item .value.success { color: var(--success); }
+        .detail-item .value.info { color: var(--info); }
+
+        .reasoning {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Provider Selector Lab</h1>
+            <p class="subtitle">Simulate multi-provider AI routing from projects02</p>
+            <nav>
+                <a href="../">Demos</a>
+                <a href="../explain/projects02.html">How It Works</a>
+                <a href="../../projects02/">projects02 Overview</a>
+            </nav>
+        </header>
+
+        <!-- Provider Health Panel -->
+        <div class="panel">
+            <h2>Provider Health Status</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                Adjust provider health metrics to see how routing decisions change.
+            </p>
+
+            <div class="providers-grid">
+                <div class="provider-card" data-provider="openai">
+                    <div class="name">OpenAI GPT-4</div>
+                    <div class="status">
+                        <div class="health">
+                            <span class="health-dot" id="openai-dot"></span>
+                            <span id="openai-health">98%</span>
+                        </div>
+                        <span id="openai-latency">450ms</span>
+                    </div>
+                </div>
+
+                <div class="provider-card" data-provider="gemini">
+                    <div class="name">Google Gemini</div>
+                    <div class="status">
+                        <div class="health">
+                            <span class="health-dot" id="gemini-dot"></span>
+                            <span id="gemini-health">95%</span>
+                        </div>
+                        <span id="gemini-latency">380ms</span>
+                    </div>
+                </div>
+
+                <div class="provider-card" data-provider="claude">
+                    <div class="name">Anthropic Claude</div>
+                    <div class="status">
+                        <div class="health">
+                            <span class="health-dot" id="claude-dot"></span>
+                            <span id="claude-health">99%</span>
+                        </div>
+                        <span id="claude-latency">520ms</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <label>OpenAI Success Rate</label>
+                <div class="slider-row">
+                    <input type="range" id="openai-rate" min="0" max="100" value="98" oninput="updateProvider('openai')">
+                    <span class="slider-value" id="openai-rate-val">98%</span>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <label>Gemini Success Rate</label>
+                <div class="slider-row">
+                    <input type="range" id="gemini-rate" min="0" max="100" value="95" oninput="updateProvider('gemini')">
+                    <span class="slider-value" id="gemini-rate-val">95%</span>
+                </div>
+            </div>
+
+            <div class="slider-group">
+                <label>Claude Success Rate</label>
+                <div class="slider-row">
+                    <input type="range" id="claude-rate" min="0" max="100" value="99" oninput="updateProvider('claude')">
+                    <span class="slider-value" id="claude-rate-val">99%</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Task Configuration -->
+        <div class="panel">
+            <h2>Configure Task</h2>
+
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                Select required capabilities for your task:
+            </p>
+
+            <div class="capability-chips">
+                <span class="chip" data-cap="code_generation">code_generation</span>
+                <span class="chip" data-cap="code_analysis">code_analysis</span>
+                <span class="chip" data-cap="text_analysis">text_analysis</span>
+                <span class="chip" data-cap="translation">translation</span>
+                <span class="chip" data-cap="reasoning">reasoning</span>
+                <span class="chip" data-cap="math">math</span>
+            </div>
+
+            <p style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.9rem;">
+                Provider preference (optional):
+            </p>
+
+            <div class="capability-chips" style="margin-bottom: 1.5rem;">
+                <span class="chip pref-chip" data-pref="">No preference</span>
+                <span class="chip pref-chip" data-pref="openai">Prefer OpenAI</span>
+                <span class="chip pref-chip" data-pref="gemini">Prefer Gemini</span>
+                <span class="chip pref-chip" data-pref="claude">Prefer Claude</span>
+            </div>
+
+            <button onclick="selectProvider()">Select Best Provider</button>
+        </div>
+
+        <!-- Result Panel -->
+        <div class="panel">
+            <h2>Selection Result</h2>
+            <div class="result-panel" id="result">
+                <div class="result-header">
+                    <span class="status">Provider Selected</span>
+                    <span id="selection-time">12ms</span>
+                </div>
+
+                <div class="result-details">
+                    <div class="detail-item">
+                        <div class="label">Selected Provider</div>
+                        <div class="value info" id="selected-provider">Claude</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Health Score</div>
+                        <div class="value success" id="selected-health">99%</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Expected Latency</div>
+                        <div class="value" id="selected-latency">520ms</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Final Score</div>
+                        <div class="value info" id="final-score">4.85</div>
+                    </div>
+                </div>
+
+                <div class="reasoning" id="reasoning">
+                    Selected 'Claude' with highest score 4.85. Factors: 99% success rate, moderate latency,
+                    supports all requested capabilities.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="../../projects02/">projects02 Overview</a> |
+            <a href="../explain/projects02.html">How It Works</a> |
+            <a href="../../">Home</a>
+        </p>
+    </footer>
+
+    <script>
+        // Provider data
+        const providers = {
+            openai: {
+                name: 'OpenAI GPT-4',
+                rate: 98,
+                latency: 450,
+                capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'translation', 'reasoning', 'math']
+            },
+            gemini: {
+                name: 'Google Gemini',
+                rate: 95,
+                latency: 380,
+                capabilities: ['code_generation', 'text_analysis', 'translation', 'reasoning', 'math']
+            },
+            claude: {
+                name: 'Anthropic Claude',
+                rate: 99,
+                latency: 520,
+                capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'reasoning']
+            }
+        };
+
+        let selectedCaps = [];
+        let preference = '';
+
+        // Update provider display
+        function updateProvider(id) {
+            const rate = document.getElementById(`${id}-rate`).value;
+            providers[id].rate = parseInt(rate);
+
+            document.getElementById(`${id}-rate-val`).textContent = `${rate}%`;
+            document.getElementById(`${id}-health`).textContent = `${rate}%`;
+
+            // Update health dot
+            const dot = document.getElementById(`${id}-dot`);
+            if (rate >= 90) {
+                dot.className = 'health-dot';
+            } else if (rate >= 70) {
+                dot.className = 'health-dot warning';
+            } else {
+                dot.className = 'health-dot danger';
+            }
+        }
+
+        // Capability chip selection
+        document.querySelectorAll('.chip:not(.pref-chip)').forEach(chip => {
+            chip.addEventListener('click', () => {
+                chip.classList.toggle('selected');
+                const cap = chip.dataset.cap;
+                if (selectedCaps.includes(cap)) {
+                    selectedCaps = selectedCaps.filter(c => c !== cap);
+                } else {
+                    selectedCaps.push(cap);
+                }
+            });
+        });
+
+        // Preference selection
+        document.querySelectorAll('.pref-chip').forEach(chip => {
+            chip.addEventListener('click', () => {
+                document.querySelectorAll('.pref-chip').forEach(c => c.classList.remove('selected'));
+                chip.classList.add('selected');
+                preference = chip.dataset.pref;
+            });
+        });
+
+        // Select provider
+        function selectProvider() {
+            if (selectedCaps.length === 0) {
+                alert('Please select at least one capability');
+                return;
+            }
+
+            let bestProvider = null;
+            let bestScore = 0;
+            let scores = {};
+
+            for (const [id, provider] of Object.entries(providers)) {
+                // Check capability support
+                const supported = selectedCaps.filter(c => provider.capabilities.includes(c));
+                if (supported.length === 0) continue;
+
+                // Calculate score
+                let score = (provider.rate / 100) * 5;  // Base score from success rate
+                score -= (provider.latency / 1000);     // Penalty for latency
+                score += (supported.length / selectedCaps.length);  // Bonus for capability coverage
+
+                // Apply preference bonus
+                if (preference === id) {
+                    score *= 1.5;
+                }
+
+                scores[id] = score;
+
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestProvider = { id, ...provider };
+                }
+            }
+
+            if (!bestProvider) {
+                alert('No provider supports the requested capabilities');
+                return;
+            }
+
+            // Display result
+            const result = document.getElementById('result');
+            result.classList.add('visible');
+
+            document.getElementById('selected-provider').textContent = bestProvider.name;
+            document.getElementById('selected-health').textContent = `${bestProvider.rate}%`;
+            document.getElementById('selected-latency').textContent = `${bestProvider.latency}ms`;
+            document.getElementById('final-score').textContent = bestScore.toFixed(2);
+            document.getElementById('selection-time').textContent = `${Math.floor(Math.random() * 15 + 5)}ms`;
+
+            // Generate reasoning
+            const reasons = [];
+            reasons.push(`Selected '${bestProvider.name}' with score ${bestScore.toFixed(2)}`);
+            reasons.push(`${bestProvider.rate}% success rate`);
+            reasons.push(`${bestProvider.latency}ms expected latency`);
+            if (preference === bestProvider.id) {
+                reasons.push(`matches user preference`);
+            }
+
+            document.getElementById('reasoning').textContent = reasons.join('. ') + '.';
+
+            // Highlight selected provider card
+            document.querySelectorAll('.provider-card').forEach(card => {
+                card.classList.remove('selected');
+                if (card.dataset.provider === bestProvider.id) {
+                    card.classList.add('selected');
+                }
+            });
+        }
+
+        // Initialize
+        document.querySelector('.pref-chip[data-pref=""]').classList.add('selected');
+    </script>
+</body>
+</html>

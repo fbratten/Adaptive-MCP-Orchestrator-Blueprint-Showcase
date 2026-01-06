@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Router Lab - projects03</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --accent: #10b981;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+        }
+
+        nav {
+            margin-top: 1rem;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel h2 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .servers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .server-card {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .server-card:hover {
+            border-color: var(--accent);
+        }
+
+        .server-card.active {
+            border-color: var(--success);
+            background: rgba(34,197,94,0.1);
+        }
+
+        .server-card.inactive {
+            opacity: 0.5;
+            border-color: var(--danger);
+        }
+
+        .server-card .name {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            color: var(--accent);
+        }
+
+        .server-card .tools-count {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .server-card .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--success);
+        }
+
+        .status-dot.inactive { background: var(--danger); }
+
+        .tools-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 0.75rem;
+            max-height: 300px;
+            overflow-y: auto;
+            padding: 0.5rem;
+            background: var(--bg);
+            border-radius: 8px;
+        }
+
+        .tool-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .tool-item:hover {
+            border-color: var(--primary);
+        }
+
+        .tool-item.selected {
+            border-color: var(--accent);
+            background: rgba(16,185,129,0.1);
+        }
+
+        .tool-item .tool-name {
+            font-weight: 500;
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .tool-item .tool-server {
+            font-size: 0.75rem;
+            color: var(--accent);
+        }
+
+        .tool-item .tool-caps {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.25rem;
+            margin-top: 0.5rem;
+        }
+
+        .cap-tag {
+            background: rgba(99,102,241,0.2);
+            color: var(--primary);
+            padding: 0.125rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.7rem;
+        }
+
+        .capability-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .chip {
+            padding: 0.5rem 1rem;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+        }
+
+        .chip:hover {
+            border-color: var(--accent);
+        }
+
+        .chip.selected {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-right: 0.5rem;
+        }
+
+        button:hover {
+            background: var(--primary-dark);
+        }
+
+        button.secondary {
+            background: var(--bg);
+            border: 1px solid var(--border);
+        }
+
+        button.secondary:hover {
+            border-color: var(--primary);
+        }
+
+        .execution-panel {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            display: none;
+        }
+
+        .execution-panel.visible {
+            display: block;
+        }
+
+        .exec-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .exec-header .status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--success);
+            font-weight: 600;
+        }
+
+        .exec-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border-radius: 8px;
+        }
+
+        .flow-box {
+            padding: 0.5rem 0.75rem;
+            border: 2px solid var(--border);
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .flow-box.highlight {
+            border-color: var(--accent);
+            background: rgba(16,185,129,0.1);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+        }
+
+        .exec-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+        }
+
+        .detail-item {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 0.75rem;
+        }
+
+        .detail-item .label {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .detail-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .detail-item .value.success { color: var(--success); }
+        .detail-item .value.accent { color: var(--accent); }
+
+        .json-output {
+            background: var(--bg-card);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+        }
+
+        .json-output pre {
+            color: var(--text-muted);
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>MCP Router Lab</h1>
+            <p class="subtitle">Simulate MCP server routing from projects03</p>
+            <nav>
+                <a href="../">Demos</a>
+                <a href="../explain/projects03.html">How It Works</a>
+                <a href="../../projects03/">projects03 Overview</a>
+            </nav>
+        </header>
+
+        <!-- MCP Servers Panel -->
+        <div class="panel">
+            <h2>Connected MCP Servers</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                Click to toggle server availability. Tools from active servers are shown below.
+            </p>
+
+            <div class="servers-grid" id="servers-grid">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Tools Registry -->
+        <div class="panel">
+            <h2>Tool Registry</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
+                Click a tool to select it for execution, or filter by capability.
+            </p>
+
+            <div class="capability-chips" id="cap-filter">
+                <span class="chip selected" data-cap="">All</span>
+                <span class="chip" data-cap="browser">browser</span>
+                <span class="chip" data-cap="file">file</span>
+                <span class="chip" data-cap="research">research</span>
+                <span class="chip" data-cap="audit">audit</span>
+                <span class="chip" data-cap="task">task</span>
+            </div>
+
+            <div class="tools-panel" id="tools-panel">
+                <!-- Populated by JS -->
+            </div>
+        </div>
+
+        <!-- Execution Panel -->
+        <div class="panel">
+            <h2>Route & Execute</h2>
+
+            <div style="margin-bottom: 1rem;">
+                <button onclick="executeSelected()">Execute Selected Tool</button>
+                <button class="secondary" onclick="findByCapability()">Find by Capability</button>
+            </div>
+
+            <div class="execution-panel" id="execution-result">
+                <div class="exec-header">
+                    <span class="status">Execution Complete</span>
+                    <span id="exec-time">45ms</span>
+                </div>
+
+                <div class="exec-flow">
+                    <div class="flow-box">Task</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box" id="flow-registry">Registry</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight" id="flow-tool">browser_navigate</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight" id="flow-server">browser-mcp</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Result</div>
+                </div>
+
+                <div class="exec-details">
+                    <div class="detail-item">
+                        <div class="label">Tool</div>
+                        <div class="value accent" id="exec-tool">browser_navigate</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Server</div>
+                        <div class="value" id="exec-server">browser-mcp</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Transport</div>
+                        <div class="value" id="exec-transport">stdio</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="label">Status</div>
+                        <div class="value success" id="exec-status">Success</div>
+                    </div>
+                </div>
+
+                <div class="json-output">
+                    <pre id="json-result">{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "result": {
+    "success": true,
+    "data": "..."
+  }
+}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>
+            <a href="../../projects03/">projects03 Overview</a> |
+            <a href="../explain/projects03.html">How It Works</a> |
+            <a href="../../">Home</a>
+        </p>
+    </footer>
+
+    <script>
+        // MCP Servers data
+        const servers = {
+            'browser-mcp': {
+                name: 'browser-mcp',
+                active: true,
+                tools: [
+                    { name: 'browser_navigate', caps: ['browser', 'navigation'] },
+                    { name: 'browser_screenshot', caps: ['browser', 'screenshot'] },
+                    { name: 'browser_click', caps: ['browser', 'interaction'] },
+                    { name: 'browser_type', caps: ['browser', 'interaction'] },
+                    { name: 'browser_evaluate', caps: ['browser', 'javascript'] },
+                ]
+            },
+            'paaf': {
+                name: 'paaf',
+                active: true,
+                tools: [
+                    { name: 'paaf_quick_audit', caps: ['audit', 'analysis'] },
+                    { name: 'paaf_full_audit', caps: ['audit', 'analysis'] },
+                    { name: 'paaf_scan_debt', caps: ['audit', 'code'] },
+                    { name: 'paaf_extract_requirements', caps: ['audit', 'requirements'] },
+                ]
+            },
+            'research-agent': {
+                name: 'research-agent',
+                active: true,
+                tools: [
+                    { name: 'research_clarify', caps: ['research', 'planning'] },
+                    { name: 'research_search', caps: ['research', 'search'] },
+                    { name: 'research_synthesize', caps: ['research', 'analysis'] },
+                    { name: 'research_report', caps: ['research', 'writing'] },
+                ]
+            },
+            'filesystem': {
+                name: 'filesystem',
+                active: true,
+                tools: [
+                    { name: 'read_file', caps: ['file', 'read'] },
+                    { name: 'write_file', caps: ['file', 'write'] },
+                    { name: 'list_directory', caps: ['file', 'list'] },
+                ]
+            },
+            'next-conductor': {
+                name: 'next-conductor',
+                active: true,
+                tools: [
+                    { name: 'read_next', caps: ['task', 'read'] },
+                    { name: 'update_next', caps: ['task', 'write'] },
+                    { name: 'init_next', caps: ['task', 'create'] },
+                ]
+            }
+        };
+
+        let selectedTool = null;
+        let currentFilter = '';
+
+        // Render servers
+        function renderServers() {
+            const grid = document.getElementById('servers-grid');
+            grid.innerHTML = '';
+
+            for (const [id, server] of Object.entries(servers)) {
+                const card = document.createElement('div');
+                card.className = `server-card ${server.active ? 'active' : 'inactive'}`;
+                card.onclick = () => toggleServer(id);
+                card.innerHTML = `
+                    <div class="name">${server.name}</div>
+                    <div class="tools-count">${server.tools.length} tools</div>
+                    <div class="status-indicator">
+                        <span class="status-dot ${server.active ? '' : 'inactive'}"></span>
+                        <span>${server.active ? 'Connected' : 'Disconnected'}</span>
+                    </div>
+                `;
+                grid.appendChild(card);
+            }
+        }
+
+        // Toggle server
+        function toggleServer(id) {
+            servers[id].active = !servers[id].active;
+            renderServers();
+            renderTools();
+        }
+
+        // Render tools
+        function renderTools() {
+            const panel = document.getElementById('tools-panel');
+            panel.innerHTML = '';
+
+            for (const [serverId, server] of Object.entries(servers)) {
+                if (!server.active) continue;
+
+                for (const tool of server.tools) {
+                    // Filter by capability
+                    if (currentFilter && !tool.caps.includes(currentFilter)) continue;
+
+                    const item = document.createElement('div');
+                    item.className = 'tool-item';
+                    item.onclick = () => selectTool(serverId, tool);
+
+                    if (selectedTool && selectedTool.name === tool.name && selectedTool.server === serverId) {
+                        item.classList.add('selected');
+                    }
+
+                    item.innerHTML = `
+                        <div class="tool-name">${tool.name}</div>
+                        <div class="tool-server">${serverId}</div>
+                        <div class="tool-caps">
+                            ${tool.caps.map(c => `<span class="cap-tag">${c}</span>`).join('')}
+                        </div>
+                    `;
+                    panel.appendChild(item);
+                }
+            }
+        }
+
+        // Select tool
+        function selectTool(server, tool) {
+            selectedTool = { server, ...tool };
+            renderTools();
+        }
+
+        // Filter chips
+        document.getElementById('cap-filter').addEventListener('click', (e) => {
+            if (e.target.classList.contains('chip')) {
+                document.querySelectorAll('#cap-filter .chip').forEach(c => c.classList.remove('selected'));
+                e.target.classList.add('selected');
+                currentFilter = e.target.dataset.cap;
+                renderTools();
+            }
+        });
+
+        // Execute selected tool
+        function executeSelected() {
+            if (!selectedTool) {
+                alert('Please select a tool first');
+                return;
+            }
+
+            showExecution(selectedTool.server, selectedTool.name);
+        }
+
+        // Find by capability
+        function findByCapability() {
+            if (!currentFilter) {
+                alert('Please select a capability filter first');
+                return;
+            }
+
+            // Find first matching tool
+            for (const [serverId, server] of Object.entries(servers)) {
+                if (!server.active) continue;
+                for (const tool of server.tools) {
+                    if (tool.caps.includes(currentFilter)) {
+                        showExecution(serverId, tool.name);
+                        return;
+                    }
+                }
+            }
+
+            alert('No tool found for capability: ' + currentFilter);
+        }
+
+        // Show execution result
+        function showExecution(server, tool) {
+            const result = document.getElementById('execution-result');
+            result.classList.add('visible');
+
+            document.getElementById('flow-tool').textContent = tool;
+            document.getElementById('flow-server').textContent = server;
+            document.getElementById('exec-tool').textContent = tool;
+            document.getElementById('exec-server').textContent = server;
+            document.getElementById('exec-time').textContent = `${Math.floor(Math.random() * 100 + 20)}ms`;
+
+            document.getElementById('json-result').textContent = JSON.stringify({
+                jsonrpc: "2.0",
+                id: Math.floor(Math.random() * 1000),
+                result: {
+                    success: true,
+                    tool: tool,
+                    server: server,
+                    data: "Simulated response from " + server
+                }
+            }, null, 2);
+        }
+
+        // Initialize
+        renderServers();
+        renderTools();
+    </script>
+</body>
+</html>

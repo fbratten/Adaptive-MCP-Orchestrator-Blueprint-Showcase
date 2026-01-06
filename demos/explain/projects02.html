@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How AI Assistant Integration Works</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--info), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        nav {
+            margin-top: 1.5rem;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--info);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            color: var(--primary);
+            margin: 1.5rem 0 0.75rem;
+            font-size: 1.15rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .diagram {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: 0.9rem;
+        }
+
+        .flow-box.highlight {
+            border-color: var(--info);
+            background: rgba(59,130,246,0.1);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+        }
+
+        .code-block {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword { color: #c792ea; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; }
+
+        .component-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .component {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .component h4 {
+            color: var(--info);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .component p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>How AI Assistant Integration Works</h1>
+            <p class="subtitle">Understanding multi-provider routing in projects02</p>
+            <nav>
+                <a href="../">Demos</a>
+                <a href="../../projects02/">projects02 Overview</a>
+                <a href="../lab/provider-selector.html">Try It</a>
+            </nav>
+        </header>
+
+        <section>
+            <h2>1. The Problem</h2>
+            <p>
+                Different AI providers (OpenAI, Google Gemini, Anthropic Claude) have different APIs, rate limits,
+                and capabilities. Switching between providers or handling failover requires significant code changes.
+            </p>
+            <p>
+                <strong>Solution:</strong> A unified bridge that abstracts provider differences and routes requests
+                to the healthiest available provider automatically.
+            </p>
+        </section>
+
+        <section>
+            <h2>2. Architecture Overview</h2>
+            <div class="diagram">
+                <div class="flow">
+                    <div class="flow-box">User Request</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">Intent Mapper</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">Provider Monitor</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Provider Adapter</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">AI API</div>
+                </div>
+            </div>
+
+            <div class="component-list">
+                <div class="component">
+                    <h4>Intent Mapper</h4>
+                    <p>Maps natural language intents to capabilities using pattern matching.</p>
+                </div>
+                <div class="component">
+                    <h4>Tool Converter</h4>
+                    <p>Converts tool schemas between provider formats (OpenAI, Anthropic, Gemini).</p>
+                </div>
+                <div class="component">
+                    <h4>Provider Monitor</h4>
+                    <p>Tracks health, latency, and availability of each provider.</p>
+                </div>
+                <div class="component">
+                    <h4>Feedback Collector</h4>
+                    <p>Collects success/failure feedback to improve routing.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Intent Mapping</h2>
+            <p>
+                The Intent Mapper converts natural language task descriptions into capability requirements.
+                It uses keyword patterns to identify what capabilities are needed.
+            </p>
+            <div class="code-block">
+<pre><span class="comment"># Example intent mapping patterns</span>
+PATTERNS = {
+    <span class="string">"code"</span>: [<span class="string">"code_generation"</span>, <span class="string">"coding"</span>],
+    <span class="string">"analyze"</span>: [<span class="string">"code_analysis"</span>, <span class="string">"text_analysis"</span>],
+    <span class="string">"summarize"</span>: [<span class="string">"text_summarization"</span>],
+    <span class="string">"translate"</span>: [<span class="string">"translation"</span>],
+}
+
+<span class="comment"># Input: "Write code to sort a list"</span>
+<span class="comment"># Output: ["code_generation", "coding"]</span></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>4. Provider Health Monitoring</h2>
+            <p>
+                The Provider Monitor continuously tracks the health of each provider:
+            </p>
+            <ul style="color: var(--text-muted); margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li><strong>Latency:</strong> Average response time (lower is better)</li>
+                <li><strong>Success Rate:</strong> Percentage of successful requests</li>
+                <li><strong>Availability:</strong> Whether the provider is currently responding</li>
+                <li><strong>Rate Limits:</strong> Remaining quota and reset time</li>
+            </ul>
+            <div class="diagram">
+                <p style="color: var(--success);">OpenAI: 98% success, 450ms avg</p>
+                <p style="color: var(--warning);">Gemini: 95% success, 380ms avg</p>
+                <p style="color: var(--text-muted);">Claude: 99% success, 520ms avg</p>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Provider Selection</h2>
+            <p>
+                When a request comes in, the bridge selects the best provider based on:
+            </p>
+            <ol style="color: var(--text-muted); margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li>Capability support (does the provider support the required capability?)</li>
+                <li>Current health score (latency + success rate)</li>
+                <li>Rate limit status (has quota remaining?)</li>
+                <li>User preference (if specified)</li>
+            </ol>
+            <div class="code-block">
+<pre><span class="keyword">def</span> select_provider(capabilities, preference=<span class="keyword">None</span>):
+    candidates = []
+    <span class="keyword">for</span> provider <span class="keyword">in</span> available_providers:
+        <span class="keyword">if</span> provider.supports(capabilities):
+            score = provider.health_score()
+            <span class="keyword">if</span> preference == provider.name:
+                score *= 1.5  <span class="comment"># Boost preferred</span>
+            candidates.append((provider, score))
+    <span class="keyword">return</span> max(candidates, key=<span class="keyword">lambda</span> x: x[1])</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>6. Tool Format Conversion</h2>
+            <p>
+                Different providers expect different tool/function schemas. The Tool Converter handles this:
+            </p>
+            <div class="code-block">
+<pre><span class="comment"># OpenAI format</span>
+{<span class="string">"type"</span>: <span class="string">"function"</span>, <span class="string">"function"</span>: {<span class="string">"name"</span>: <span class="string">"search"</span>, ...}}
+
+<span class="comment"># Anthropic format</span>
+{<span class="string">"name"</span>: <span class="string">"search"</span>, <span class="string">"input_schema"</span>: {...}}
+
+<span class="comment"># Gemini format</span>
+{<span class="string">"name"</span>: <span class="string">"search"</span>, <span class="string">"parameters"</span>: {...}}</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>7. Feedback Loop</h2>
+            <p>
+                After each request, feedback is collected and sent to the Learning Layer (M5):
+            </p>
+            <div class="diagram">
+                <div class="flow">
+                    <div class="flow-box">Response</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Feedback Collector</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">M5 Learning</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Score Update</div>
+                </div>
+            </div>
+            <p>
+                Successful requests boost the provider's score; failures reduce it. This creates
+                a self-improving system that learns which providers work best for which tasks.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="../../projects02/">projects02 Overview</a> |
+            <a href="../lab/provider-selector.html">Try the Demo</a> |
+            <a href="../../">Home</a>
+        </p>
+    </footer>
+</body>
+</html>

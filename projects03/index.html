@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MCP Meta-Router - projects03</title>
+    <meta name="description" content="Route tasks to external MCP servers with unified tool discovery and registry">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --accent: #10b981;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, rgba(16,185,129,0.15) 0%, transparent 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+        }
+
+        .badge.success { border-color: var(--success); color: var(--success); }
+        .badge.accent { border-color: var(--accent); color: var(--accent); }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 3rem 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .module {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .module:hover {
+            border-color: var(--accent);
+            transform: translateY(-4px);
+        }
+
+        .module h3 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .module p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .module .tests {
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .feature h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .mcp-servers {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .server-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .server {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .server:hover {
+            border-color: var(--accent);
+        }
+
+        .server .name {
+            color: var(--accent);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .server .tools {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .flow-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 0.75rem 1.25rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .flow-step.router {
+            border-color: var(--accent);
+            background: rgba(16,185,129,0.1);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword { color: #c792ea; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; }
+        .code-block .function { color: #82aaff; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>MCP Meta-Router</h1>
+        <p>Route tasks to external MCP servers with unified tool discovery, capability inference, and a normalized registry. Connect to browser-mcp, paaf, research-agent, and more.</p>
+
+        <div class="badges">
+            <span class="badge success">226 Tests Passing</span>
+            <span class="badge success">5 Modules</span>
+            <span class="badge accent">MCP Protocol</span>
+        </div>
+
+        <nav>
+            <a href="../">Home</a>
+            <a href="../demos/">Demos</a>
+            <a href="../demos/explain/projects03.html">How It Works</a>
+            <a href="../demos/lab/mcp-router.html">Try It</a>
+        </nav>
+    </section>
+
+    <section class="container">
+        <h2>5-Module Architecture</h2>
+        <div class="modules">
+            <div class="module">
+                <h3>p03-1 MCP Client</h3>
+                <p>Connect to MCP servers via stdio transport. Handle JSON-RPC messages, sessions, and reconnection.</p>
+                <div class="tests">74 tests | Transport Layer</div>
+            </div>
+
+            <div class="module">
+                <h3>p03-2 MCP Discovery</h3>
+                <p>Discover available servers and tools. Auto-detect capabilities from tool names and descriptions.</p>
+                <div class="tests">40 tests | Discovery Engine</div>
+            </div>
+
+            <div class="module">
+                <h3>p03-3 MCP Registry</h3>
+                <p>Unified tool registry with capability mapping, tool normalization, and search.</p>
+                <div class="tests">62 tests | Tool Registry</div>
+            </div>
+
+            <div class="module">
+                <h3>p03-4 MCP Router</h3>
+                <p>Main router with tool selection, execution, and fallback handling.</p>
+                <div class="tests">Meta-Router Core</div>
+            </div>
+
+            <div class="module">
+                <h3>p03-5 MCP Config</h3>
+                <p>Configuration schemas for server definitions, transport settings, and validation.</p>
+                <div class="tests">50 tests | Config Schemas</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Supported MCP Servers</h2>
+        <div class="mcp-servers">
+            <p style="color: var(--text-muted); text-align: center; margin-bottom: 1rem;">
+                Route to any MCP-compatible server. Here are some examples:
+            </p>
+            <div class="server-grid">
+                <div class="server">
+                    <div class="name">browser-mcp</div>
+                    <div class="tools">Browser automation, screenshots</div>
+                </div>
+                <div class="server">
+                    <div class="name">paaf</div>
+                    <div class="tools">Project audit, documentation</div>
+                </div>
+                <div class="server">
+                    <div class="name">research-agent</div>
+                    <div class="tools">Research, synthesis, reports</div>
+                </div>
+                <div class="server">
+                    <div class="name">smart-inventory</div>
+                    <div class="tools">CLAUDE.md generation</div>
+                </div>
+                <div class="server">
+                    <div class="name">next-conductor</div>
+                    <div class="tools">NEXT.md task tracking</div>
+                </div>
+                <div class="server">
+                    <div class="name">filesystem</div>
+                    <div class="tools">File read/write operations</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Request Flow</h2>
+        <div class="flow-diagram">
+            <div class="flow-steps">
+                <div class="flow-step">Task</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Discovery</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Registry</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step router">Router</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">MCP Client</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Server</div>
+            </div>
+            <p style="margin-top: 1.5rem; color: var(--text-muted);">
+                Tasks are matched to tools via capabilities, then routed to the appropriate MCP server.
+            </p>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Key Features</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Auto-Discovery</h3>
+                <p>Automatically discover tools from configured MCP servers at startup.</p>
+            </div>
+            <div class="feature">
+                <h3>Capability Inference</h3>
+                <p>Infer capabilities from tool names and descriptions using pattern matching.</p>
+            </div>
+            <div class="feature">
+                <h3>Tool Normalization</h3>
+                <p>Normalize tools from different servers into a unified format.</p>
+            </div>
+            <div class="feature">
+                <h3>Stdio Transport</h3>
+                <p>Communicate with MCP servers via standard input/output (JSON-RPC).</p>
+            </div>
+            <div class="feature">
+                <h3>Session Management</h3>
+                <p>Maintain persistent sessions with automatic reconnection.</p>
+            </div>
+            <div class="feature">
+                <h3>Unified Registry</h3>
+                <p>Search, filter, and select tools across all connected servers.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Quick Example</h2>
+        <div class="code-block">
+<pre><span class="keyword">from</span> mcp_router <span class="keyword">import</span> MCPRouter
+<span class="keyword">from</span> mcp_config <span class="keyword">import</span> load_mcp_config
+
+<span class="comment"># Load server configurations from .mcp.json</span>
+config = load_mcp_config(<span class="string">".mcp.json"</span>)
+
+<span class="comment"># Initialize router with auto-discovery</span>
+router = MCPRouter(config)
+<span class="keyword">await</span> router.<span class="function">discover_all</span>()
+
+<span class="comment"># Find tools by capability</span>
+tools = router.<span class="function">find_tools</span>(capability=<span class="string">"browser"</span>)
+<span class="function">print</span>(tools)  <span class="comment"># [browser_navigate, browser_screenshot, ...]</span>
+
+<span class="comment"># Execute a tool</span>
+response = <span class="keyword">await</span> router.<span class="function">execute</span>(
+    tool=<span class="string">"browser_navigate"</span>,
+    input_data={<span class="string">"url"</span>: <span class="string">"https://example.com"</span>},
+)
+<span class="function">print</span>(response.server)  <span class="comment"># browser-mcp</span></pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>
+            Part of the <a href="../">Intelligent MCP Orchestrator</a> Platform<br>
+            <a href="https://github.com/fbratten/ai-projects-and-management-example">View on GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>

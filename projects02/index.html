@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Assistant Integration - projects02</title>
+    <meta name="description" content="Multi-provider AI routing for OpenAI, Gemini, and other assistants">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .hero {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, rgba(59,130,246,0.15) 0%, transparent 100%);
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(135deg, var(--info), #8b5cf6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero p {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .badges {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+        }
+
+        .badge.success { border-color: var(--success); color: var(--success); }
+        .badge.info { border-color: var(--info); color: var(--info); }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover {
+            border-color: var(--primary);
+            background: rgba(99,102,241,0.1);
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        section {
+            padding: 3rem 0;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .modules {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .module {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.2s;
+        }
+
+        .module:hover {
+            border-color: var(--primary);
+            transform: translateY(-4px);
+        }
+
+        .module h3 {
+            color: var(--info);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .module p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-bottom: 1rem;
+        }
+
+        .module .tests {
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        .feature h3 {
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .feature p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .flow-diagram {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .flow-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-step {
+            padding: 1rem 1.5rem;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            min-width: 140px;
+        }
+
+        .flow-step.provider {
+            border-color: var(--info);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+            font-size: 1.5rem;
+        }
+
+        .code-block {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            overflow-x: auto;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword { color: #c792ea; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; }
+        .code-block .function { color: #82aaff; }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--border);
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <section class="hero">
+        <h1>AI Assistant Integration</h1>
+        <p>Multi-provider AI routing system that bridges external AI assistants (OpenAI, Gemini, Claude) to the MCP Orchestrator with health monitoring and feedback collection.</p>
+
+        <div class="badges">
+            <span class="badge success">189 Tests Passing</span>
+            <span class="badge success">5 Modules</span>
+            <span class="badge info">Multi-Provider</span>
+        </div>
+
+        <nav>
+            <a href="../">Home</a>
+            <a href="../demos/">Demos</a>
+            <a href="../demos/explain/projects02.html">How It Works</a>
+            <a href="../demos/lab/provider-selector.html">Try It</a>
+        </nav>
+    </section>
+
+    <section class="container">
+        <h2>5-Module Architecture</h2>
+        <div class="modules">
+            <div class="module">
+                <h3>p02-1 OpenAI Adapter</h3>
+                <p>GPT-4 integration with streaming support, function calling, and error handling.</p>
+                <div class="tests">Provider: OpenAI</div>
+            </div>
+
+            <div class="module">
+                <h3>p02-2 Gemini Adapter</h3>
+                <p>Google Gemini integration with multimodal support and safety settings.</p>
+                <div class="tests">20 tests | Provider: Google</div>
+            </div>
+
+            <div class="module">
+                <h3>p02-3 Assistant Bridge</h3>
+                <p>Main integration bridge with intent mapping, tool conversion, and feedback collection.</p>
+                <div class="tests">86 tests | Core Bridge</div>
+            </div>
+
+            <div class="module">
+                <h3>p02-4 Provider Monitor</h3>
+                <p>Health checking, latency tracking, and availability monitoring for all providers.</p>
+                <div class="tests">48 tests | Health Monitor</div>
+            </div>
+
+            <div class="module">
+                <h3>p02-5 Assistant Config</h3>
+                <p>Pydantic schemas for provider configuration, rate limits, and API keys.</p>
+                <div class="tests">35 tests | Config Schemas</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Request Flow</h2>
+        <div class="flow-diagram">
+            <div class="flow-steps">
+                <div class="flow-step">User Request</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Intent Mapper</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Provider Monitor</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step provider">OpenAI / Gemini / Claude</div>
+                <span class="flow-arrow">&rarr;</span>
+                <div class="flow-step">Feedback Collector</div>
+            </div>
+            <p style="margin-top: 1.5rem; color: var(--text-muted);">
+                Requests are mapped to capabilities, routed to the healthiest provider, and feedback is collected for learning.
+            </p>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Key Features</h2>
+        <div class="features">
+            <div class="feature">
+                <h3>Multi-Provider Support</h3>
+                <p>OpenAI GPT-4, Google Gemini, and Anthropic Claude with unified interface.</p>
+            </div>
+            <div class="feature">
+                <h3>Intent Mapping</h3>
+                <p>Map natural language intents to capabilities using pattern matching.</p>
+            </div>
+            <div class="feature">
+                <h3>Tool Conversion</h3>
+                <p>Convert tool schemas between providers (OpenAI, Anthropic, Gemini formats).</p>
+            </div>
+            <div class="feature">
+                <h3>Health Monitoring</h3>
+                <p>Track latency, success rates, and availability for each provider.</p>
+            </div>
+            <div class="feature">
+                <h3>Feedback Collection</h3>
+                <p>Collect success/failure feedback to improve future routing decisions.</p>
+            </div>
+            <div class="feature">
+                <h3>Rate Limiting</h3>
+                <p>Built-in rate limit tracking and automatic provider fallback.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Quick Example</h2>
+        <div class="code-block">
+<pre><span class="keyword">from</span> assistant_bridge <span class="keyword">import</span> AssistantBridge
+<span class="keyword">from</span> provider_monitor <span class="keyword">import</span> ProviderMonitor
+
+<span class="comment"># Initialize bridge with health monitoring</span>
+monitor = ProviderMonitor()
+bridge = AssistantBridge(monitor=monitor)
+
+<span class="comment"># Configure providers</span>
+bridge.add_provider(<span class="string">"openai"</span>, api_key=<span class="string">"sk-..."</span>)
+bridge.add_provider(<span class="string">"gemini"</span>, api_key=<span class="string">"AI..."</span>)
+
+<span class="comment"># Execute task - automatically routes to healthiest provider</span>
+response = <span class="keyword">await</span> bridge.<span class="function">execute</span>(
+    task=<span class="string">"Generate a sorting algorithm"</span>,
+    capabilities=[<span class="string">"code_generation"</span>],
+)
+
+<span class="function">print</span>(response.provider)  <span class="comment"># openai or gemini</span>
+<span class="function">print</span>(response.latency)   <span class="comment"># 1234ms</span></pre>
+        </div>
+    </section>
+
+    <footer>
+        <p>
+            Part of the <a href="../">Intelligent MCP Orchestrator</a> Platform<br>
+            <a href="https://github.com/fbratten/ai-projects-and-management-example">View on GitHub</a>
+        </p>
+    </footer>
+</body>
+</html>

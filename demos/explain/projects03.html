@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How MCP Meta-Router Works</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --accent: #10b981;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.7;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.25rem;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        nav {
+            margin-top: 1.5rem;
+        }
+
+        nav a {
+            color: var(--primary);
+            text-decoration: none;
+            margin: 0 0.75rem;
+        }
+
+        nav a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        h2 {
+            color: var(--accent);
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        h3 {
+            color: var(--primary);
+            margin: 1.5rem 0 0.75rem;
+            font-size: 1.15rem;
+        }
+
+        p {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+        }
+
+        .diagram {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            text-align: center;
+        }
+
+        .flow {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            padding: 0.75rem 1rem;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            background: var(--bg-card);
+            font-size: 0.9rem;
+        }
+
+        .flow-box.highlight {
+            border-color: var(--accent);
+            background: rgba(16,185,129,0.1);
+        }
+
+        .flow-arrow {
+            color: var(--text-muted);
+        }
+
+        .code-block {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+        }
+
+        .code-block pre {
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .code-block .keyword { color: #c792ea; }
+        .code-block .string { color: #c3e88d; }
+        .code-block .comment { color: #546e7a; }
+
+        .component-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin: 1rem 0;
+        }
+
+        .component {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1rem;
+        }
+
+        .component h4 {
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .component p {
+            font-size: 0.85rem;
+            margin: 0;
+        }
+
+        .server-example {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 0.75rem;
+            margin: 1rem 0;
+        }
+
+        .server-box {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        .server-box .name {
+            color: var(--accent);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .server-box .desc {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>How MCP Meta-Router Works</h1>
+            <p class="subtitle">Understanding external MCP server routing in projects03</p>
+            <nav>
+                <a href="../">Demos</a>
+                <a href="../../projects03/">projects03 Overview</a>
+                <a href="../lab/mcp-router.html">Try It</a>
+            </nav>
+        </header>
+
+        <section>
+            <h2>1. What is MCP?</h2>
+            <p>
+                <strong>MCP (Model Context Protocol)</strong> is a standard for AI tools to communicate with
+                external services. An MCP server exposes tools that can be discovered and invoked by AI assistants.
+            </p>
+            <p>
+                The Meta-Router connects to multiple MCP servers and provides a unified interface to all their tools.
+            </p>
+            <div class="server-example">
+                <div class="server-box">
+                    <div class="name">browser-mcp</div>
+                    <div class="desc">Web automation</div>
+                </div>
+                <div class="server-box">
+                    <div class="name">paaf</div>
+                    <div class="desc">Project audit</div>
+                </div>
+                <div class="server-box">
+                    <div class="name">filesystem</div>
+                    <div class="desc">File operations</div>
+                </div>
+                <div class="server-box">
+                    <div class="name">research-agent</div>
+                    <div class="desc">Research tools</div>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. Architecture Overview</h2>
+            <div class="diagram">
+                <div class="flow">
+                    <div class="flow-box">Task</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">Discovery</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">Registry</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">Router</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">MCP Client</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Server</div>
+                </div>
+            </div>
+
+            <div class="component-list">
+                <div class="component">
+                    <h4>MCP Client</h4>
+                    <p>Connects to servers via stdio transport and handles JSON-RPC messages.</p>
+                </div>
+                <div class="component">
+                    <h4>Discovery</h4>
+                    <p>Finds available servers and tools, infers capabilities automatically.</p>
+                </div>
+                <div class="component">
+                    <h4>Registry</h4>
+                    <p>Stores normalized tools in a searchable index with capability tags.</p>
+                </div>
+                <div class="component">
+                    <h4>Router</h4>
+                    <p>Selects the best tool and executes it on the appropriate server.</p>
+                </div>
+            </div>
+        </section>
+
+        <section>
+            <h2>3. Server Discovery</h2>
+            <p>
+                The Discovery module scans configured servers and retrieves their available tools.
+                Servers are defined in <code>.mcp.json</code>:
+            </p>
+            <div class="code-block">
+<pre>{
+  <span class="string">"mcpServers"</span>: {
+    <span class="string">"browser-mcp"</span>: {
+      <span class="string">"command"</span>: <span class="string">"node"</span>,
+      <span class="string">"args"</span>: [<span class="string">"browser-mcp/index.js"</span>]
+    },
+    <span class="string">"paaf"</span>: {
+      <span class="string">"command"</span>: <span class="string">"python"</span>,
+      <span class="string">"args"</span>: [<span class="string">"-m"</span>, <span class="string">"paaf"</span>]
+    }
+  }
+}</pre>
+            </div>
+            <p>
+                Each server is spawned as a subprocess, and the client connects via stdin/stdout.
+            </p>
+        </section>
+
+        <section>
+            <h2>4. Tool Discovery & Capability Inference</h2>
+            <p>
+                Once connected, the client sends a <code>tools/list</code> request to get available tools.
+                The Discovery module then infers capabilities from tool names and descriptions:
+            </p>
+            <div class="code-block">
+<pre><span class="comment"># Tool: browser_navigate</span>
+<span class="comment"># Description: "Navigate to a URL in the browser"</span>
+<span class="comment"># Inferred capabilities: ["browser", "navigation", "web"]</span>
+
+CAPABILITY_KEYWORDS = {
+    <span class="string">"browser"</span>: [<span class="string">"browser"</span>, <span class="string">"web"</span>, <span class="string">"navigate"</span>],
+    <span class="string">"file"</span>: [<span class="string">"file"</span>, <span class="string">"read"</span>, <span class="string">"write"</span>],
+    <span class="string">"research"</span>: [<span class="string">"research"</span>, <span class="string">"search"</span>, <span class="string">"analyze"</span>],
+}</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Tool Normalization</h2>
+            <p>
+                Tools from different servers may have different schemas. The Registry normalizes them:
+            </p>
+            <div class="code-block">
+<pre><span class="keyword">class</span> NormalizedTool:
+    tool_id: str          <span class="comment"># "browser-mcp:browser_navigate"</span>
+    name: str             <span class="comment"># "browser_navigate"</span>
+    server: str           <span class="comment"># "browser-mcp"</span>
+    capabilities: list    <span class="comment"># ["browser", "navigation"]</span>
+    input_schema: dict    <span class="comment"># JSON Schema for inputs</span></pre>
+            </div>
+            <p>
+                The full tool ID includes the server name to avoid collisions between servers
+                that might have tools with the same name.
+            </p>
+        </section>
+
+        <section>
+            <h2>6. Tool Selection</h2>
+            <p>
+                When a task arrives, the Router searches the Registry for matching tools:
+            </p>
+            <ol style="color: var(--text-muted); margin-left: 1.5rem; margin-bottom: 1rem;">
+                <li>Find tools matching required capabilities</li>
+                <li>Score tools based on capability match quality</li>
+                <li>Check server health/availability</li>
+                <li>Select the highest-scoring available tool</li>
+            </ol>
+            <div class="code-block">
+<pre><span class="comment"># Find tools for "browser" capability</span>
+tools = registry.find_by_capability(<span class="string">"browser"</span>)
+<span class="comment"># Returns: [browser_navigate, browser_screenshot, browser_click, ...]</span>
+
+<span class="comment"># Select best tool for task</span>
+tool = selector.select(
+    task=<span class="string">"Take a screenshot"</span>,
+    capabilities=[<span class="string">"browser"</span>, <span class="string">"screenshot"</span>]
+)
+<span class="comment"># Returns: browser_screenshot</span></pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>7. Execution via Stdio Transport</h2>
+            <p>
+                The MCP Client communicates with servers using JSON-RPC over stdio:
+            </p>
+            <div class="diagram">
+                <div class="flow">
+                    <div class="flow-box">Router</div>
+                    <span class="flow-arrow">JSON-RPC &rarr;</span>
+                    <div class="flow-box highlight">stdin</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">Server Process</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">stdout</div>
+                    <span class="flow-arrow">JSON-RPC &rarr;</span>
+                    <div class="flow-box">Router</div>
+                </div>
+            </div>
+            <div class="code-block">
+<pre><span class="comment"># Request (to server stdin)</span>
+{<span class="string">"jsonrpc"</span>: <span class="string">"2.0"</span>, <span class="string">"method"</span>: <span class="string">"tools/call"</span>, <span class="string">"params"</span>: {...}, <span class="string">"id"</span>: 1}
+
+<span class="comment"># Response (from server stdout)</span>
+{<span class="string">"jsonrpc"</span>: <span class="string">"2.0"</span>, <span class="string">"result"</span>: {...}, <span class="string">"id"</span>: 1}</pre>
+            </div>
+        </section>
+
+        <section>
+            <h2>8. Integration with M1</h2>
+            <p>
+                The MCP Meta-Router implements the <code>ProviderAdapter</code> protocol,
+                making it a first-class citizen in the orchestrator:
+            </p>
+            <div class="diagram">
+                <div class="flow">
+                    <div class="flow-box">M1 Orchestrator</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box highlight">MCP Meta-Router</div>
+                    <span class="flow-arrow">&rarr;</span>
+                    <div class="flow-box">External MCP Servers</div>
+                </div>
+            </div>
+            <p>
+                The orchestrator can select MCP tools alongside internal tools and AI provider tools,
+                all through the same capability-based routing system.
+            </p>
+        </section>
+    </div>
+
+    <footer>
+        <p>
+            <a href="../../projects03/">projects03 Overview</a> |
+            <a href="../lab/mcp-router.html">Try the Demo</a> |
+            <a href="../../">Home</a>
+        </p>
+    </footer>
+</body>
+</html>

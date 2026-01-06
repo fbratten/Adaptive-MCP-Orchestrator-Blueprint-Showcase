@@ -4,8 +4,8 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status](https://img.shields.io/badge/status-complete-green)]()
-[![Tests](https://img.shields.io/badge/tests-496%20passing-brightgreen)]()
-[![Modules](https://img.shields.io/badge/modules-6%2F6-blue)]()
+[![Tests](https://img.shields.io/badge/tests-911%20passing-brightgreen)]()
+[![Modules](https://img.shields.io/badge/modules-16-blue)]()
 
 ---
 
@@ -69,6 +69,35 @@ The **Intelligent MCP Orchestrator** is a platform that intelligently routes tas
 | **M4** | Dashboard API - FastAPI, SSE streaming | 84 | ✅ Complete |
 | **M5** | Learning Layer - LanceDB vectors, Neo4j graphs | 107 | ✅ Complete |
 | **M6** | Infrastructure - Docker Compose, Prometheus | Docker | ✅ Complete |
+
+### Extended Modules
+
+| Module | Purpose | Tests | Status |
+|--------|---------|-------|--------|
+| **projects02** | AI Assistant Integration - Multi-provider routing | 189 | ✅ Complete |
+| **projects03** | MCP Meta-Router - External MCP server routing | 226 | ✅ Complete |
+
+#### projects02: AI Assistant Integration
+
+5 modules for integrating AI assistants (OpenAI, Gemini, Claude) with the orchestrator:
+
+- **p02-1-openai-adapter** - OpenAI GPT-4 provider adapter
+- **p02-2-gemini-adapter** - Google Gemini provider adapter
+- **p02-3-assistant-bridge** - Main integration bridge
+- **p02-4-provider-monitor** - Health monitoring & feedback
+- **p02-5-assistant-config** - Configuration schemas
+
+#### projects03: MCP Meta-Router
+
+5 modules for routing tasks to external MCP servers:
+
+- **p03-1-mcp-client** - MCP client with stdio transport
+- **p03-2-mcp-discovery** - Server and tool discovery
+- **p03-3-mcp-registry** - Unified tool registry
+- **p03-4-mcp-router** - Main meta-router
+- **p03-5-mcp-config** - Configuration schemas
+
+Supported MCP Servers: browser-mcp, paaf, filesystem, research-agent, and more.
 
 ---
 
@@ -205,6 +234,8 @@ Adaptive MCP Orchestrator Blueprint/
 │   ├── p4-dashboard/       # M4: Dashboard API
 │   ├── p5-learning/        # M5: Learning Layer
 │   └── p6-infrastructure/  # M6: Docker
+├── projects02/             # AI Assistant Integration (5 modules)
+├── projects03/             # MCP Meta-Router (5 modules)
 ├── docs/
 │   ├── architecture/       # Design specs
 │   └── reviews/            # Code reviews
@@ -213,6 +244,15 @@ Adaptive MCP Orchestrator Blueprint/
 ├── NEXT.md                 # Task tracking
 └── docker-compose.yml      # Infrastructure
 ```
+
+## Interactive Demos
+
+The project includes interactive demos for exploring how the orchestrator works:
+
+- **[Tool Selection Simulator](demos/)** - See how capability-based routing works
+- **[Provider Selector Lab](demos/lab/provider-selector.html)** - Interactive multi-provider selection
+- **[MCP Router Lab](demos/lab/mcp-router.html)** - MCP server routing simulation
+- **[How It Works](demos/explain/)** - Visual explanations of core concepts
 
 ---
 
