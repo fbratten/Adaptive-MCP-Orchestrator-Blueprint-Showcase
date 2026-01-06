@@ -177,7 +177,8 @@ docker-compose up -d
 | Dashboard | http://localhost:8080 | API docs, health, tools |
 | Prometheus | http://localhost:9090 | Metrics queries |
 | Grafana | http://localhost:3000 | Dashboards (admin/admin) |
-| Neo4j | http://localhost:17474 | Graph database browser |
+| Loki | http://localhost:3100 | Log aggregation |
+| Neo4j | http://localhost:7474 | Graph database browser |
 
 ---
 
