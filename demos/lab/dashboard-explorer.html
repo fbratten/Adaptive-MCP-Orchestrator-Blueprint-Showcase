@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Explorer - Demo Lab</title>
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --bg: #0f172a;
+            --bg-card: #1e293b;
+            --text: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            margin-bottom: 2rem;
+        }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+        }
+
+        nav {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        nav ul {
+            list-style: none;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        nav a {
+            color: var(--text);
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+
+        nav a:hover, nav a.active {
+            background: var(--primary);
+        }
+
+        /* Dashboard tabs */
+        .dashboard-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .dashboard-tab {
+            padding: 0.75rem 1.5rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .dashboard-tab:hover {
+            border-color: var(--primary);
+            color: var(--text);
+        }
+
+        .dashboard-tab.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+        }
+
+        /* Dashboard content */
+        .dashboard-content {
+            display: none;
+        }
+
+        .dashboard-content.active {
+            display: block;
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+
+        .stat-card .label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .stat-card.success .value { color: var(--success); }
+        .stat-card.warning .value { color: var(--warning); }
+        .stat-card.error .value { color: var(--error); }
+
+        /* Health indicators */
+        .health-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .health-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .health-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .health-indicator.healthy { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .health-indicator.warning { background: var(--warning); box-shadow: 0 0 10px var(--warning); }
+        .health-indicator.error { background: var(--error); box-shadow: 0 0 10px var(--error); }
+
+        .health-info h3 {
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .health-info p {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Panel */
+        .panel {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .panel h2 {
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        /* Charts (simulated with CSS) */
+        .chart-container {
+            height: 200px;
+            position: relative;
+            background: var(--bg);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .time-series {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            gap: 4px;
+            padding: 1rem;
+        }
+
+        .bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary), var(--primary-dark));
+            border-radius: 4px 4px 0 0;
+            transition: height 0.5s ease;
+            min-width: 20px;
+        }
+
+        /* Pie chart simulation */
+        .pie-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .pie-chart {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--success) 0% 60%,
+                var(--warning) 60% 85%,
+                var(--error) 85% 100%
+            );
+            position: relative;
+        }
+
+        .pie-chart::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 80px;
+            background: var(--bg-card);
+            border-radius: 50%;
+        }
+
+        .pie-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 2px;
+        }
+
+        .legend-color.success { background: var(--success); }
+        .legend-color.warning { background: var(--warning); }
+        .legend-color.error { background: var(--error); }
+
+        /* Metrics table */
+        .metrics-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .metrics-table th,
+        .metrics-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .metrics-table th {
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .metrics-table code {
+            background: var(--bg);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        /* Live indicator */
+        .live-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.25rem 0.75rem;
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Controls */
+        .controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+        }
+
+        /* Info box */
+        .info-box {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .info-box p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* Two column layout */
+        .two-col {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Dashboard Explorer</h1>
+            <p class="subtitle">Interactive simulation of the MCP Orchestrator's observability dashboards</p>
+        </header>
+
+        <nav>
+            <ul>
+                <li><a href="index.html">Lab Home</a></li>
+                <li><a href="task-runner.html">Task Runner</a></li>
+                <li><a href="learning-viz.html">Learning Viz</a></li>
+                <li><a href="score-decay.html">Score Decay</a></li>
+                <li><a href="dashboard-explorer.html" class="active">Dashboard Explorer</a></li>
+                <li><a href="../index.html">All Demos</a></li>
+            </ul>
+        </nav>
+
+        <div class="info-box">
+            <p><strong>About This Demo:</strong> This interactive simulation shows how the MCP Orchestrator provides full observability through 4 Grafana dashboards, 15+ Prometheus metrics, and REST API endpoints. Click the tabs below to explore different dashboard views.</p>
+        </div>
+
+        <div class="controls">
+            <span class="live-badge"><span class="live-dot"></span> Live Simulation</span>
+            <button class="btn btn-primary" onclick="simulateActivity()">Simulate Activity</button>
+            <button class="btn btn-secondary" onclick="resetMetrics()">Reset Metrics</button>
+        </div>
+
+        <!-- Dashboard Tabs -->
+        <div class="dashboard-tabs">
+            <div class="dashboard-tab active" onclick="showDashboard('overview')">MCP Overview</div>
+            <div class="dashboard-tab" onclick="showDashboard('learning')">M5 Learning Layer</div>
+            <div class="dashboard-tab" onclick="showDashboard('api')">API Endpoints</div>
+            <div class="dashboard-tab" onclick="showDashboard('metrics')">Prometheus Metrics</div>
+        </div>
+
+        <!-- Overview Dashboard -->
+        <div id="overview" class="dashboard-content active">
+            <div class="stats-grid">
+                <div class="stat-card success">
+                    <div class="value" id="total-requests">0</div>
+                    <div class="label">Total Requests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="avg-latency">0ms</div>
+                    <div class="label">Avg Latency</div>
+                </div>
+                <div class="stat-card success">
+                    <div class="value" id="success-rate">100%</div>
+                    <div class="label">Success Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="active-tools">6</div>
+                    <div class="label">Active Tools</div>
+                </div>
+            </div>
+
+            <div class="health-grid">
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-orchestrator"></div>
+                    <div class="health-info">
+                        <h3>Orchestrator</h3>
+                        <p>Core routing engine healthy</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-dashboard"></div>
+                    <div class="health-info">
+                        <h3>Dashboard API</h3>
+                        <p>FastAPI server running</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-prometheus"></div>
+                    <div class="health-info">
+                        <h3>Prometheus</h3>
+                        <p>Metrics collection active</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-grafana"></div>
+                    <div class="health-info">
+                        <h3>Grafana</h3>
+                        <p>4 dashboards provisioned</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel">
+                <h2>Request Rate (Last Hour)</h2>
+                <div class="chart-container">
+                    <div class="time-series" id="request-chart">
+                        <!-- Bars generated by JS -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Learning Layer Dashboard -->
+        <div id="learning" class="dashboard-content">
+            <div class="health-grid">
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-learning"></div>
+                    <div class="health-info">
+                        <h3>Learning Layer</h3>
+                        <p>Overall health status</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-vector"></div>
+                    <div class="health-info">
+                        <h3>Vector Store (LanceDB)</h3>
+                        <p>Semantic similarity engine</p>
+                    </div>
+                </div>
+                <div class="health-card">
+                    <div class="health-indicator healthy" id="health-graph"></div>
+                    <div class="health-info">
+                        <h3>Graph Store (Neo4j)</h3>
+                        <p>Relationship mapping</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="value" id="total-embeddings">0</div>
+                    <div class="label">Total Embeddings</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="task-nodes">0</div>
+                    <div class="label">Task Nodes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="tool-nodes">6</div>
+                    <div class="label">Tool Nodes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="value" id="relationships">0</div>
+                    <div class="label">Relationships</div>
+                </div>
+            </div>
+
+            <div class="two-col">
+                <div class="panel">
+                    <h2>Embeddings by Tool</h2>
+                    <div class="pie-container">
+                        <div class="pie-chart" id="tool-pie"></div>
+                        <div class="pie-legend">
+                            <div class="legend-item"><span class="legend-color success"></span> claude_code_gen (60%)</div>
+                            <div class="legend-item"><span class="legend-color warning"></span> claude_general (25%)</div>
+                            <div class="legend-item"><span class="legend-color error"></span> internal_calc (15%)</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="panel">
+                    <h2>Embeddings by Outcome</h2>
+                    <div class="pie-container">
+                        <div class="pie-chart" id="outcome-pie" style="background: conic-gradient(var(--success) 0% 85%, var(--error) 85% 100%);"></div>
+                        <div class="pie-legend">
+                            <div class="legend-item"><span class="legend-color success"></span> Success (85%)</div>
+                            <div class="legend-item"><span class="legend-color error"></span> Failure (15%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- API Endpoints Dashboard -->
+        <div id="api" class="dashboard-content">
+            <div class="panel">
+                <h2>Available Endpoints</h2>
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Endpoint</th>
+                            <th>Method</th>
+                            <th>Description</th>
+                            <th>Calls</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>/health</code></td>
+                            <td>GET</td>
+                            <td>System health check</td>
+                            <td id="calls-health">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/tools</code></td>
+                            <td>GET</td>
+                            <td>List available tools</td>
+                            <td id="calls-tools">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/execute</code></td>
+                            <td>POST</td>
+                            <td>Execute a task</td>
+                            <td id="calls-execute">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/config</code></td>
+                            <td>GET</td>
+                            <td>View configuration</td>
+                            <td id="calls-config">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/learning/stats</code></td>
+                            <td>GET</td>
+                            <td>Learning layer statistics</td>
+                            <td id="calls-learning">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/learning/health</code></td>
+                            <td>GET</td>
+                            <td>Learning layer health</td>
+                            <td id="calls-learning-health">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/events/stream</code></td>
+                            <td>GET</td>
+                            <td>SSE event stream</td>
+                            <td id="calls-events">0</td>
+                        </tr>
+                        <tr>
+                            <td><code>/logs/stream</code></td>
+                            <td>GET</td>
+                            <td>SSE log stream</td>
+                            <td id="calls-logs">0</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>Sample API Response: /learning/stats</h2>
+                <pre style="background: var(--bg); padding: 1rem; border-radius: 8px; overflow-x: auto; font-size: 0.85rem;"><code id="api-response">{
+  "healthy": true,
+  "vector_store": {
+    "available": true,
+    "total_embeddings": 0,
+    "embeddings_by_tool": {},
+    "embeddings_by_outcome": {}
+  },
+  "graph_store": {
+    "available": true,
+    "task_count": 0,
+    "tool_count": 6,
+    "capability_count": 12,
+    "outcome_count": 2,
+    "relationship_count": 0
+  }
+}</code></pre>
+            </div>
+        </div>
+
+        <!-- Prometheus Metrics Dashboard -->
+        <div id="metrics" class="dashboard-content">
+            <div class="panel">
+                <h2>Prometheus Metrics</h2>
+                <p style="color: var(--text-muted); margin-bottom: 1rem;">15+ custom metrics exposed at <code>/metrics/prometheus</code></p>
+                <table class="metrics-table">
+                    <thead>
+                        <tr>
+                            <th>Metric Name</th>
+                            <th>Type</th>
+                            <th>Value</th>
+                            <th>Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>mcp_learning_healthy</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-healthy">1</td>
+                            <td>Overall learning layer health</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_vector_store_available</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-vector">1</td>
+                            <td>LanceDB availability</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_graph_store_available</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-graph">1</td>
+                            <td>Neo4j availability</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_vector_embeddings_total</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-embeddings">0</td>
+                            <td>Total embeddings in LanceDB</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_graph_tasks_total</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-tasks">0</td>
+                            <td>Task nodes in Neo4j</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_graph_tools_total</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-tools">6</td>
+                            <td>Tool nodes in Neo4j</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_learning_graph_relationships_total</code></td>
+                            <td>Gauge</td>
+                            <td id="metric-relationships">0</td>
+                            <td>Relationships in Neo4j</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_requests_total</code></td>
+                            <td>Counter</td>
+                            <td id="metric-requests">0</td>
+                            <td>Total HTTP requests</td>
+                        </tr>
+                        <tr>
+                            <td><code>mcp_request_latency_ms</code></td>
+                            <td>Histogram</td>
+                            <td id="metric-latency">-</td>
+                            <td>Request latency distribution</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h2>Grafana Dashboards</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value">4</div>
+                        <div class="label">Dashboards</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value">15+</div>
+                        <div class="label">Metrics</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value">2</div>
+                        <div class="label">Datasources</div>
+                    </div>
+                </div>
+                <table class="metrics-table" style="margin-top: 1rem;">
+                    <thead>
+                        <tr>
+                            <th>Dashboard</th>
+                            <th>Purpose</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>MCP Overview</td>
+                            <td>System health, request rates, latency metrics</td>
+                        </tr>
+                        <tr>
+                            <td>M5 Learning Layer</td>
+                            <td>LanceDB embeddings, Neo4j nodes, relationships</td>
+                        </tr>
+                        <tr>
+                            <td>API Endpoints</td>
+                            <td>Per-endpoint request metrics and latency</td>
+                        </tr>
+                        <tr>
+                            <td>Logs Explorer</td>
+                            <td>Full-text log search via Loki</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>
+                Dashboard Explorer Demo - Part of <a href="../../index.html">Intelligent MCP Orchestrator</a><br>
+                Access real dashboards at: Grafana (localhost:3000) | Prometheus (localhost:9090)
+            </p>
+        </footer>
+    </div>
+
+    <script>
+        // State
+        let metrics = {
+            requests: 0,
+            latency: [],
+            successRate: 100,
+            embeddings: 0,
+            taskNodes: 0,
+            relationships: 0,
+            apiCalls: {
+                health: 0,
+                tools: 0,
+                execute: 0,
+                config: 0,
+                learning: 0,
+                learningHealth: 0,
+                events: 0,
+                logs: 0
+            }
+        };
+
+        // Initialize chart
+        function initChart() {
+            const chart = document.getElementById('request-chart');
+            chart.innerHTML = '';
+            for (let i = 0; i < 12; i++) {
+                const bar = document.createElement('div');
+                bar.className = 'bar';
+                bar.style.height = '10%';
+                chart.appendChild(bar);
+            }
+        }
+
+        // Show dashboard tab
+        function showDashboard(id) {
+            document.querySelectorAll('.dashboard-content').forEach(d => d.classList.remove('active'));
+            document.querySelectorAll('.dashboard-tab').forEach(t => t.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Update display
+        function updateDisplay() {
+            document.getElementById('total-requests').textContent = metrics.requests;
+            document.getElementById('avg-latency').textContent =
+                metrics.latency.length > 0
+                    ? Math.round(metrics.latency.reduce((a, b) => a + b, 0) / metrics.latency.length) + 'ms'
+                    : '0ms';
+            document.getElementById('success-rate').textContent = metrics.successRate + '%';
+            document.getElementById('total-embeddings').textContent = metrics.embeddings;
+            document.getElementById('task-nodes').textContent = metrics.taskNodes;
+            document.getElementById('relationships').textContent = metrics.relationships;
+
+            // API calls
+            document.getElementById('calls-health').textContent = metrics.apiCalls.health;
+            document.getElementById('calls-tools').textContent = metrics.apiCalls.tools;
+            document.getElementById('calls-execute').textContent = metrics.apiCalls.execute;
+            document.getElementById('calls-config').textContent = metrics.apiCalls.config;
+            document.getElementById('calls-learning').textContent = metrics.apiCalls.learning;
+            document.getElementById('calls-learning-health').textContent = metrics.apiCalls.learningHealth;
+            document.getElementById('calls-events').textContent = metrics.apiCalls.events;
+            document.getElementById('calls-logs').textContent = metrics.apiCalls.logs;
+
+            // Prometheus metrics
+            document.getElementById('metric-embeddings').textContent = metrics.embeddings;
+            document.getElementById('metric-tasks').textContent = metrics.taskNodes;
+            document.getElementById('metric-relationships').textContent = metrics.relationships;
+            document.getElementById('metric-requests').textContent = metrics.requests;
+
+            // Update chart
+            const bars = document.querySelectorAll('#request-chart .bar');
+            bars.forEach((bar, i) => {
+                const height = Math.min(10 + (metrics.requests / 10) + Math.random() * 30, 95);
+                bar.style.height = height + '%';
+            });
+
+            // Update API response
+            const apiResponse = {
+                healthy: true,
+                vector_store: {
+                    available: true,
+                    total_embeddings: metrics.embeddings,
+                    embeddings_by_tool: metrics.embeddings > 0 ? {
+                        'claude_code_generation': Math.floor(metrics.embeddings * 0.6),
+                        'claude_general': Math.floor(metrics.embeddings * 0.25),
+                        'internal_calculator': Math.floor(metrics.embeddings * 0.15)
+                    } : {},
+                    embeddings_by_outcome: metrics.embeddings > 0 ? {
+                        'success': Math.floor(metrics.embeddings * 0.85),
+                        'failure': Math.floor(metrics.embeddings * 0.15)
+                    } : {}
+                },
+                graph_store: {
+                    available: true,
+                    task_count: metrics.taskNodes,
+                    tool_count: 6,
+                    capability_count: 12,
+                    outcome_count: 2,
+                    relationship_count: metrics.relationships
+                }
+            };
+            document.getElementById('api-response').textContent = JSON.stringify(apiResponse, null, 2);
+        }
+
+        // Simulate activity
+        function simulateActivity() {
+            const interval = setInterval(() => {
+                metrics.requests++;
+                metrics.latency.push(50 + Math.random() * 200);
+                if (metrics.latency.length > 100) metrics.latency.shift();
+
+                if (Math.random() > 0.15) {
+                    metrics.embeddings++;
+                    metrics.taskNodes++;
+                    metrics.relationships += 2;
+                }
+
+                // Random API calls
+                const endpoints = ['health', 'tools', 'execute', 'config', 'learning', 'learningHealth'];
+                const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
+                metrics.apiCalls[endpoint]++;
+
+                updateDisplay();
+
+                if (metrics.requests >= 50) {
+                    clearInterval(interval);
+                }
+            }, 200);
+        }
+
+        // Reset metrics
+        function resetMetrics() {
+            metrics = {
+                requests: 0,
+                latency: [],
+                successRate: 100,
+                embeddings: 0,
+                taskNodes: 0,
+                relationships: 0,
+                apiCalls: {
+                    health: 0,
+                    tools: 0,
+                    execute: 0,
+                    config: 0,
+                    learning: 0,
+                    learningHealth: 0,
+                    events: 0,
+                    logs: 0
+                }
+            };
+            updateDisplay();
+        }
+
+        // Initialize
+        initChart();
+        updateDisplay();
+    </script>
+</body>
+</html>
