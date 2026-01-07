@@ -221,9 +221,10 @@
         <p>A Cognitive Dispatcher that routes tasks between internal MCP tools and external AI providers, with Claude-first bias and self-learning capabilities.</p>
 
         <div class="badges">
-            <span class="badge success">911 Tests Passing</span>
+            <span class="badge success">960+ Tests Passing</span>
             <span class="badge success">16 Modules Complete</span>
             <span class="badge primary">Real API Integration</span>
+            <span class="badge primary">4 Grafana Dashboards</span>
         </div>
 
         <div class="cta-buttons">
@@ -285,7 +286,7 @@
             <div class="module">
                 <div class="id">M4</div>
                 <div class="name">Dashboard</div>
-                <div class="tests">84 tests</div>
+                <div class="tests">136 tests</div>
             </div>
             <div class="module">
                 <div class="id">M5</div>
@@ -310,6 +311,48 @@
             <div class="feature">
                 <h3><a href="projects03/" style="color: inherit; text-decoration: none;">projects03: MCP Meta-Router</a></h3>
                 <p>Route tasks to external MCP servers (browser-mcp, paaf, research-agent) with unified tool discovery. 226 tests.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Dashboard & Observability</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Full visibility into system behavior with real-time monitoring and historical analysis.</p>
+        <div class="features">
+            <div class="feature">
+                <h3>4 Grafana Dashboards</h3>
+                <p>MCP Overview, M5 Learning Layer, API Endpoints, and Logs Explorer. Real-time metrics and visualizations.</p>
+            </div>
+            <div class="feature">
+                <h3>Learning Layer Visibility</h3>
+                <p>Monitor LanceDB embeddings and Neo4j graph nodes in real-time. See tool success rates and relationships grow.</p>
+            </div>
+            <div class="feature">
+                <h3>Prometheus Metrics</h3>
+                <p>15+ custom metrics for learning layer health, vector store stats, and graph store relationships.</p>
+            </div>
+            <div class="feature">
+                <h3>REST API Stats</h3>
+                <p>/learning/stats and /learning/health endpoints for programmatic access to learning layer statistics.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="container">
+        <h2>Integration Ready</h2>
+        <p style="text-align: center; color: var(--text-muted); margin-bottom: 2rem;">Connect your systems to the orchestrator via REST API or integrate with existing frameworks.</p>
+        <div class="features">
+            <div class="feature">
+                <h3>SPINE Integration</h3>
+                <p>Works with SPINE multi-agent orchestration framework for Plan→Execute→Verify→Commit workflows.</p>
+            </div>
+            <div class="feature">
+                <h3>MCP Server Compatible</h3>
+                <p>Routes to any MCP server: browser-mcp, paaf, research-agent, filesystem, and custom servers.</p>
+            </div>
+            <div class="feature">
+                <h3>REST API Gateway</h3>
+                <p>FastAPI-based dashboard with OpenAPI docs. Call /execute, /tools, /config, and /learning endpoints.</p>
             </div>
         </div>
     </section>

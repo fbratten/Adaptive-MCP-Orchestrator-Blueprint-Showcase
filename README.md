@@ -4,8 +4,9 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Status](https://img.shields.io/badge/status-complete-green)]()
-[![Tests](https://img.shields.io/badge/tests-911%20passing-brightgreen)]()
+[![Tests](https://img.shields.io/badge/tests-960%2B%20passing-brightgreen)]()
 [![Modules](https://img.shields.io/badge/modules-16-blue)]()
+[![Dashboards](https://img.shields.io/badge/grafana-4%20dashboards-orange)]()
 
 ---
 
@@ -66,7 +67,7 @@ The **Intelligent MCP Orchestrator** is a platform that intelligently routes tas
 | **M1** | Core Orchestrator - Task routing, tool selection | 89 | ✅ Complete |
 | **M2** | Configuration Engine - YAML config, API keys | 106 | ✅ Complete |
 | **M3** | Logging & Observability - JSON logs, metrics | 110 | ✅ Complete |
-| **M4** | Dashboard API - FastAPI, SSE streaming | 84 | ✅ Complete |
+| **M4** | Dashboard API - FastAPI, SSE streaming | 136 | ✅ Complete |
 | **M5** | Learning Layer - LanceDB vectors, Neo4j graphs | 107 | ✅ Complete |
 | **M6** | Infrastructure - Docker Compose, Prometheus | Docker | ✅ Complete |
 
@@ -98,6 +99,56 @@ The **Intelligent MCP Orchestrator** is a platform that intelligently routes tas
 - **p03-5-mcp-config** - Configuration schemas
 
 Supported MCP Servers: browser-mcp, paaf, filesystem, research-agent, and more.
+
+---
+
+## Dashboard & Observability (New)
+
+Full visibility into system behavior with multiple observation points:
+
+### Grafana Dashboards
+
+| Dashboard | Purpose |
+|-----------|---------|
+| **MCP Overview** | System health, request rates, latency metrics |
+| **M5 Learning Layer** | LanceDB embeddings, Neo4j nodes, relationships |
+| **API Endpoints** | Per-endpoint request metrics |
+| **Logs Explorer** | Full-text log search via Loki |
+
+### Learning Layer Visibility
+
+Real-time monitoring of the self-learning system:
+
+- **Vector Store (LanceDB):** Embeddings count, by-tool breakdown, by-outcome stats
+- **Graph Store (Neo4j):** Task/Tool/Capability nodes, relationships
+- **REST API:** `/learning/stats` and `/learning/health` endpoints
+
+### Prometheus Metrics
+
+15+ custom metrics including:
+- `mcp_learning_healthy` - Overall health status
+- `mcp_learning_vector_store_available` - LanceDB availability
+- `mcp_learning_graph_store_available` - Neo4j availability
+- `mcp_learning_vector_embeddings_total` - Total embeddings
+- `mcp_learning_graph_relationships_total` - Graph relationships
+
+---
+
+## Integration Ready
+
+Connect your systems to the orchestrator:
+
+### SPINE Integration
+
+Works with SPINE multi-agent framework for Plan→Execute→Verify→Commit workflows.
+
+### MCP Server Ecosystem
+
+Routes to any MCP-compatible server: browser-mcp, paaf, research-agent, filesystem, and custom servers.
+
+### REST API Gateway
+
+All capabilities accessible via REST API with OpenAPI documentation at `/docs`.
 
 ---
 
@@ -207,7 +258,8 @@ docker-compose up -d
 | Prometheus | http://localhost:9090 | Metrics queries |
 | Grafana | http://localhost:3000 | Dashboards (admin/admin) |
 | Loki | http://localhost:3100 | Log aggregation |
-| Neo4j | http://localhost:7474 | Graph database browser |
+| Neo4j | http://localhost:17474 | Graph database browser |
+| Learning Stats | http://localhost:8080/learning/stats | Learning layer API |
 
 ---
 
@@ -249,6 +301,7 @@ Adaptive MCP Orchestrator Blueprint/
 
 The project includes interactive demos for exploring how the orchestrator works:
 
+- **[Overview](docs/overview.md)** - Architectural summary and key capabilities
 - **[Tool Selection Simulator](demos/)** - See how capability-based routing works
 - **[Provider Selector Lab](demos/lab/provider-selector.html)** - Interactive multi-provider selection
 - **[MCP Router Lab](demos/lab/mcp-router.html)** - MCP server routing simulation
