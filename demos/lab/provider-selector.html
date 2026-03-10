@@ -303,7 +303,7 @@
 
             <div class="providers-grid">
                 <div class="provider-card" data-provider="openai">
-                    <div class="name">OpenAI GPT-4</div>
+                    <div class="name">OpenAI GPT-4o</div>
                     <div class="status">
                         <div class="health">
                             <span class="health-dot" id="openai-dot"></span>
@@ -314,7 +314,7 @@
                 </div>
 
                 <div class="provider-card" data-provider="gemini">
-                    <div class="name">Google Gemini</div>
+                    <div class="name">Google Gemini 2.0 Flash</div>
                     <div class="status">
                         <div class="health">
                             <span class="health-dot" id="gemini-dot"></span>
@@ -325,7 +325,7 @@
                 </div>
 
                 <div class="provider-card" data-provider="claude">
-                    <div class="name">Anthropic Claude</div>
+                    <div class="name">Anthropic Claude Sonnet 4.6</div>
                     <div class="status">
                         <div class="health">
                             <span class="health-dot" id="claude-dot"></span>
@@ -440,19 +440,19 @@
         // Provider data
         const providers = {
             openai: {
-                name: 'OpenAI GPT-4',
+                name: 'OpenAI GPT-4o',
                 rate: 98,
                 latency: 450,
                 capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'translation', 'reasoning', 'math']
             },
             gemini: {
-                name: 'Google Gemini',
+                name: 'Google Gemini 2.0 Flash',
                 rate: 95,
                 latency: 380,
                 capabilities: ['code_generation', 'text_analysis', 'translation', 'reasoning', 'math']
             },
             claude: {
-                name: 'Anthropic Claude',
+                name: 'Anthropic Claude Sonnet 4.6',
                 rate: 99,
                 latency: 520,
                 capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'reasoning']
