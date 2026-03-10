@@ -12,8 +12,11 @@
             --warning: #f59e0b;
             --danger: #ef4444;
             --info: #3b82f6;
+            --purple: #8b5cf6;
+            --teal: #14b8a6;
             --bg: #0f172a;
             --bg-card: #1e293b;
+            --bg-deep: #0a0f1e;
             --text: #f8fafc;
             --text-muted: #94a3b8;
             --border: #334155;
@@ -29,16 +32,9 @@
             min-height: 100vh;
         }
 
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            padding: 2rem;
-        }
+        .container { max-width: 1060px; margin: 0 auto; padding: 2rem; }
 
-        header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+        header { text-align: center; margin-bottom: 2rem; }
 
         h1 {
             font-size: 2rem;
@@ -48,19 +44,10 @@
             -webkit-text-fill-color: transparent;
         }
 
-        .subtitle {
-            color: var(--text-muted);
-        }
+        .subtitle { color: var(--text-muted); }
 
-        nav {
-            margin-top: 1rem;
-        }
-
-        nav a {
-            color: var(--primary);
-            text-decoration: none;
-            margin: 0 0.5rem;
-        }
+        nav { margin-top: 1rem; }
+        nav a { color: var(--primary); text-decoration: none; margin: 0 0.5rem; }
 
         .panel {
             background: var(--bg-card);
@@ -70,223 +57,324 @@
             margin-bottom: 1.5rem;
         }
 
-        .panel h2 {
-            color: var(--info);
-            margin-bottom: 1rem;
-            font-size: 1.25rem;
-        }
+        .panel h2 { color: var(--info); margin-bottom: 1rem; font-size: 1.25rem; }
 
-        .providers-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-
-        .provider-card {
-            background: var(--bg);
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            padding: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .provider-card:hover {
-            border-color: var(--primary);
-        }
-
-        .provider-card.selected {
-            border-color: var(--info);
-            background: rgba(59,130,246,0.1);
-        }
-
-        .provider-card .name {
-            font-weight: 600;
+        /* Provider groups */
+        .provider-group { margin-bottom: 1.25rem; }
+        .provider-group-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--text-muted);
             margin-bottom: 0.5rem;
+            padding-left: 2px;
+        }
+        .provider-group-label.openai  { color: #10b981; }
+        .provider-group-label.google  { color: #f59e0b; }
+        .provider-group-label.anthropic { color: #ec4899; }
+
+        .models-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(195px, 1fr));
+            gap: 0.75rem;
         }
 
-        .provider-card .status {
+        .model-card {
+            background: var(--bg-deep);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .model-card.winner {
+            border-color: var(--success);
+            background: rgba(34,197,94,0.07);
+        }
+
+        .model-card.runner-up {
+            border-color: var(--info);
+            background: rgba(59,130,246,0.07);
+        }
+
+        .model-card .model-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .model-card .model-meta {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.4rem;
+        }
+
+        .tier-badge {
+            font-size: 0.65rem;
+            font-weight: 700;
+            padding: 0.15rem 0.5rem;
+            border-radius: 9999px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .tier-flagship { background: rgba(99,102,241,0.2); color: #818cf8; }
+        .tier-reasoning { background: rgba(139,92,246,0.2); color: #a78bfa; }
+        .tier-balanced  { background: rgba(20,184,166,0.2); color: #2dd4bf; }
+        .tier-fast      { background: rgba(34,197,94,0.2);  color: #4ade80; }
+
+        .cost-tier { font-size: 0.75rem; }
+
+        .health-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8rem;
             color: var(--text-muted);
         }
 
-        .provider-card .health {
+        .health-indicator {
             display: flex;
             align-items: center;
-            gap: 0.25rem;
+            gap: 0.3rem;
         }
 
         .health-dot {
-            width: 8px;
-            height: 8px;
+            width: 7px; height: 7px;
             border-radius: 50%;
             background: var(--success);
+            flex-shrink: 0;
         }
-
         .health-dot.warning { background: var(--warning); }
-        .health-dot.danger { background: var(--danger); }
+        .health-dot.danger  { background: var(--danger); }
 
-        .slider-group {
-            margin-bottom: 1rem;
+        /* Sliders */
+        .sliders-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
         }
 
         .slider-group label {
             display: block;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.4rem;
             color: var(--text-muted);
-            font-size: 0.9rem;
+            font-size: 0.85rem;
         }
 
-        .slider-row {
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-        }
+        .slider-row { display: flex; align-items: center; gap: 0.75rem; }
 
         input[type="range"] {
-            flex: 1;
-            height: 8px;
+            flex: 1; height: 6px;
             background: var(--border);
             border-radius: 4px;
             -webkit-appearance: none;
         }
-
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 16px; height: 16px;
             background: var(--primary);
             border-radius: 50%;
             cursor: pointer;
         }
 
-        .slider-value {
-            min-width: 60px;
-            text-align: right;
-            font-family: monospace;
+        .slider-value { min-width: 42px; text-align: right; font-family: monospace; font-size: 0.85rem; }
+
+        /* Capability chips */
+        .section-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
         }
 
-        .capability-chips {
+        .chips-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.5rem;
+            gap: 0.4rem;
             margin-bottom: 1rem;
         }
 
         .chip {
-            padding: 0.5rem 1rem;
+            padding: 0.4rem 0.9rem;
             background: var(--bg);
             border: 1px solid var(--border);
             border-radius: 9999px;
             cursor: pointer;
-            transition: all 0.2s;
-            font-size: 0.9rem;
+            transition: all 0.15s;
+            font-size: 0.82rem;
         }
+        .chip:hover { border-color: var(--primary); }
+        .chip.selected { background: var(--info); border-color: var(--info); color: white; }
+        .chip.preset { background: rgba(99,102,241,0.12); border-color: var(--primary); }
+        .chip.preset:hover { background: rgba(99,102,241,0.25); }
 
-        .chip:hover {
-            border-color: var(--primary);
-        }
-
-        .chip.selected {
-            background: var(--info);
-            border-color: var(--info);
-            color: white;
-        }
-
-        button {
-            background: var(--primary);
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 8px;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        button:hover {
-            background: var(--primary-dark);
-        }
-
-        .result-panel {
-            background: var(--bg);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            display: none;
-        }
-
-        .result-panel.visible {
-            display: block;
-        }
-
-        .result-header {
+        .priority-tabs {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            gap: 0.5rem;
             margin-bottom: 1rem;
         }
 
-        .result-header .status {
-            color: var(--success);
+        .priority-tab {
+            padding: 0.4rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            background: var(--bg);
+            transition: all 0.15s;
+        }
+        .priority-tab.active { background: var(--primary); border-color: var(--primary); color: white; }
+
+        .run-btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 2rem;
+            border-radius: 8px;
+            font-size: 1rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            width: 100%;
+            margin-top: 0.5rem;
+        }
+        .run-btn:hover { background: var(--primary-dark); }
+
+        /* Result panel */
+        .result-hidden { display: none; }
+
+        .winner-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
         }
 
-        .result-details {
+        .winner-model {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--success);
+        }
+
+        .winner-provider-badge {
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+        }
+        .badge-openai   { background: rgba(16,185,129,0.15); color: #10b981; }
+        .badge-google   { background: rgba(245,158,11,0.15); color: #f59e0b; }
+        .badge-anthropic { background: rgba(236,72,153,0.15); color: #ec4899; }
+
+        .result-stats {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.25rem;
         }
 
-        .detail-item {
-            background: var(--bg-card);
+        .stat-box {
+            background: var(--bg);
             border-radius: 8px;
             padding: 0.75rem;
         }
-
-        .detail-item .label {
+        .stat-box .stat-label {
             color: var(--text-muted);
+            font-size: 0.75rem;
+            margin-bottom: 0.2rem;
+        }
+        .stat-box .stat-value {
+            font-size: 1.05rem;
+            font-weight: 700;
+        }
+        .stat-value.success { color: var(--success); }
+        .stat-value.info    { color: var(--info); }
+        .stat-value.warning { color: var(--warning); }
+
+        /* Capability strength bars */
+        .cap-bars { margin-bottom: 1.25rem; }
+        .cap-bars-title {
             font-size: 0.8rem;
-            margin-bottom: 0.25rem;
+            color: var(--text-muted);
+            margin-bottom: 0.6rem;
         }
 
-        .detail-item .value {
-            font-size: 1.1rem;
-            font-weight: 600;
+        .cap-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.35rem;
+        }
+        .cap-bar-label {
+            width: 140px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+            flex-shrink: 0;
+        }
+        .cap-bar-track {
+            flex: 1;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .cap-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--info), var(--purple));
+            transition: width 0.4s ease;
+        }
+        .cap-bar-pct {
+            width: 36px;
+            text-align: right;
+            font-size: 0.78rem;
+            font-family: monospace;
+            color: var(--text);
         }
 
-        .detail-item .value.success { color: var(--success); }
-        .detail-item .value.info { color: var(--info); }
-
-        .reasoning {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--bg-card);
+        /* Runner-up */
+        .runner-up-row {
+            padding: 0.75rem 1rem;
+            background: var(--bg);
             border-radius: 8px;
-            font-size: 0.9rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        .runner-up-name { color: var(--info); font-weight: 600; }
+        .runner-up-score { color: var(--text-muted); font-family: monospace; }
+
+        /* Reasoning */
+        .reasoning-box {
+            padding: 1rem;
+            background: var(--bg);
+            border-left: 3px solid var(--primary);
+            border-radius: 0 8px 8px 0;
+            font-size: 0.88rem;
             color: var(--text-muted);
+            line-height: 1.7;
         }
 
-        footer {
-            text-align: center;
-            padding: 2rem;
-            color: var(--text-muted);
-        }
-
-        footer a {
-            color: var(--primary);
-            text-decoration: none;
-        }
+        footer { text-align: center; padding: 2rem; color: var(--text-muted); }
+        footer a { color: var(--primary); text-decoration: none; }
     </style>
 </head>
 <body>
     <div class="container">
         <header>
             <h1>Provider Selector Lab</h1>
-            <p class="subtitle">Simulate multi-provider AI routing from projects02</p>
+            <p class="subtitle">Simulate multi-provider AI routing — 7 models, 9 capability dimensions</p>
             <nav>
                 <a href="../">Demos</a>
                 <a href="../explain/projects02.html">How It Works</a>
@@ -297,66 +385,145 @@
         <!-- Provider Health Panel -->
         <div class="panel">
             <h2>Provider Health Status</h2>
-            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
-                Adjust provider health metrics to see how routing decisions change.
-            </p>
+            <p class="section-label">Live health affects routing scores. Drag sliders to simulate degradation.</p>
 
-            <div class="providers-grid">
-                <div class="provider-card" data-provider="openai">
-                    <div class="name">OpenAI GPT-5.4</div>
-                    <div class="status">
-                        <div class="health">
-                            <span class="health-dot" id="openai-dot"></span>
-                            <span id="openai-health">98%</span>
+            <div class="provider-group">
+                <div class="provider-group-label openai">OpenAI</div>
+                <div class="models-row">
+                    <div class="model-card" id="card-gpt54">
+                        <div class="model-name">GPT-5.4</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-flagship">Flagship</span>
+                            <span class="cost-tier" title="Cost per 1M tokens">$$$</span>
                         </div>
-                        <span id="openai-latency">450ms</span>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-gpt54"></span>
+                                <span id="health-gpt54">98%</span>
+                            </div>
+                            <span>450ms</span>
+                        </div>
                     </div>
-                </div>
-
-                <div class="provider-card" data-provider="gemini">
-                    <div class="name">Google Gemini 3.1 Pro</div>
-                    <div class="status">
-                        <div class="health">
-                            <span class="health-dot" id="gemini-dot"></span>
-                            <span id="gemini-health">95%</span>
+                    <div class="model-card" id="card-o4mini">
+                        <div class="model-name">o4-mini</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-reasoning">Reasoning</span>
+                            <span class="cost-tier">$$</span>
                         </div>
-                        <span id="gemini-latency">380ms</span>
-                    </div>
-                </div>
-
-                <div class="provider-card" data-provider="claude">
-                    <div class="name">Anthropic Claude Sonnet 4.6</div>
-                    <div class="status">
-                        <div class="health">
-                            <span class="health-dot" id="claude-dot"></span>
-                            <span id="claude-health">99%</span>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-o4mini"></span>
+                                <span id="health-o4mini">98%</span>
+                            </div>
+                            <span>290ms</span>
                         </div>
-                        <span id="claude-latency">520ms</span>
                     </div>
                 </div>
             </div>
 
-            <div class="slider-group">
-                <label>OpenAI Success Rate</label>
-                <div class="slider-row">
-                    <input type="range" id="openai-rate" min="0" max="100" value="98" oninput="updateProvider('openai')">
-                    <span class="slider-value" id="openai-rate-val">98%</span>
+            <div class="provider-group">
+                <div class="provider-group-label google">Google</div>
+                <div class="models-row">
+                    <div class="model-card" id="card-gem31pro">
+                        <div class="model-name">Gemini 3.1 Pro</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-flagship">Flagship</span>
+                            <span class="cost-tier">$$$</span>
+                        </div>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-gem31pro"></span>
+                                <span id="health-gem31pro">96%</span>
+                            </div>
+                            <span>420ms</span>
+                        </div>
+                    </div>
+                    <div class="model-card" id="card-gem31flash">
+                        <div class="model-name">Gemini 3.1 Flash-Lite</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-fast">Fast</span>
+                            <span class="cost-tier">$</span>
+                        </div>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-gem31flash"></span>
+                                <span id="health-gem31flash">96%</span>
+                            </div>
+                            <span>150ms</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="slider-group">
-                <label>Gemini Success Rate</label>
-                <div class="slider-row">
-                    <input type="range" id="gemini-rate" min="0" max="100" value="95" oninput="updateProvider('gemini')">
-                    <span class="slider-value" id="gemini-rate-val">95%</span>
+            <div class="provider-group">
+                <div class="provider-group-label anthropic">Anthropic</div>
+                <div class="models-row">
+                    <div class="model-card" id="card-opus46">
+                        <div class="model-name">Claude Opus 4.6</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-flagship">Flagship</span>
+                            <span class="cost-tier">$$$$</span>
+                        </div>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-opus46"></span>
+                                <span id="health-opus46">99%</span>
+                            </div>
+                            <span>680ms</span>
+                        </div>
+                    </div>
+                    <div class="model-card" id="card-sonnet46">
+                        <div class="model-name">Claude Sonnet 4.6</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-balanced">Balanced</span>
+                            <span class="cost-tier">$$</span>
+                        </div>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-sonnet46"></span>
+                                <span id="health-sonnet46">99%</span>
+                            </div>
+                            <span>460ms</span>
+                        </div>
+                    </div>
+                    <div class="model-card" id="card-haiku45">
+                        <div class="model-name">Claude Haiku 4.5</div>
+                        <div class="model-meta">
+                            <span class="tier-badge tier-fast">Fast</span>
+                            <span class="cost-tier">$</span>
+                        </div>
+                        <div class="health-row">
+                            <div class="health-indicator">
+                                <span class="health-dot" id="dot-haiku45"></span>
+                                <span id="health-haiku45">99%</span>
+                            </div>
+                            <span>200ms</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <div class="slider-group">
-                <label>Claude Success Rate</label>
-                <div class="slider-row">
-                    <input type="range" id="claude-rate" min="0" max="100" value="99" oninput="updateProvider('claude')">
-                    <span class="slider-value" id="claude-rate-val">99%</span>
+            <div class="sliders-row">
+                <div class="slider-group">
+                    <label>OpenAI Success Rate</label>
+                    <div class="slider-row">
+                        <input type="range" id="rate-openai" min="0" max="100" value="98" oninput="updateProviderHealth('openai')">
+                        <span class="slider-value" id="rateval-openai">98%</span>
+                    </div>
+                </div>
+                <div class="slider-group">
+                    <label>Google Success Rate</label>
+                    <div class="slider-row">
+                        <input type="range" id="rate-google" min="0" max="100" value="96" oninput="updateProviderHealth('google')">
+                        <span class="slider-value" id="rateval-google">96%</span>
+                    </div>
+                </div>
+                <div class="slider-group">
+                    <label>Anthropic Success Rate</label>
+                    <div class="slider-row">
+                        <input type="range" id="rate-anthropic" min="0" max="100" value="99" oninput="updateProviderHealth('anthropic')">
+                        <span class="slider-value" id="rateval-anthropic">99%</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -365,66 +532,97 @@
         <div class="panel">
             <h2>Configure Task</h2>
 
-            <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9rem;">
-                Select required capabilities for your task:
-            </p>
+            <p class="section-label">Quick presets:</p>
+            <div class="chips-row" id="presets-row">
+                <span class="chip preset" data-preset="code">🛠 Write &amp; Debug Code</span>
+                <span class="chip preset" data-preset="math">📐 Math &amp; Proofs</span>
+                <span class="chip preset" data-preset="translate">🌐 Translate Documents</span>
+                <span class="chip preset" data-preset="vision">🖼 Vision Task</span>
+                <span class="chip preset" data-preset="agent">🤖 Autonomous Agent</span>
+                <span class="chip preset" data-preset="longdoc">📄 Analyse Long Document</span>
+            </div>
 
-            <div class="capability-chips">
-                <span class="chip" data-cap="code_generation">code_generation</span>
+            <p class="section-label" style="margin-top:0.25rem">Or pick capabilities manually:</p>
+            <div class="chips-row" id="cap-chips">
+                <span class="chip" data-cap="code_gen">code_generation</span>
                 <span class="chip" data-cap="code_analysis">code_analysis</span>
-                <span class="chip" data-cap="text_analysis">text_analysis</span>
+                <span class="chip" data-cap="reasoning">complex_reasoning</span>
+                <span class="chip" data-cap="math">math &amp; science</span>
+                <span class="chip" data-cap="text">text &amp; analysis</span>
                 <span class="chip" data-cap="translation">translation</span>
-                <span class="chip" data-cap="reasoning">reasoning</span>
-                <span class="chip" data-cap="math">math</span>
+                <span class="chip" data-cap="multimodal">multimodal / vision</span>
+                <span class="chip" data-cap="agentic">agentic / tool use</span>
+                <span class="chip" data-cap="long_context">long context (&gt;100K)</span>
             </div>
 
-            <p style="color: var(--text-muted); margin-bottom: 0.5rem; font-size: 0.9rem;">
-                Provider preference (optional):
-            </p>
+            <p class="section-label">Routing priority:</p>
+            <div class="priority-tabs" id="priority-tabs">
+                <div class="priority-tab" data-mode="quality">Quality</div>
+                <div class="priority-tab active" data-mode="balanced">Balanced</div>
+                <div class="priority-tab" data-mode="speed">Speed / Cost</div>
+            </div>
 
-            <div class="capability-chips" style="margin-bottom: 1.5rem;">
-                <span class="chip pref-chip" data-pref="">No preference</span>
+            <p class="section-label">Provider preference (optional):</p>
+            <div class="chips-row" id="pref-chips">
+                <span class="chip pref-chip selected" data-pref="">No preference</span>
                 <span class="chip pref-chip" data-pref="openai">Prefer OpenAI</span>
-                <span class="chip pref-chip" data-pref="gemini">Prefer Gemini</span>
-                <span class="chip pref-chip" data-pref="claude">Prefer Claude</span>
+                <span class="chip pref-chip" data-pref="google">Prefer Google</span>
+                <span class="chip pref-chip" data-pref="anthropic">Prefer Anthropic</span>
             </div>
 
-            <button onclick="selectProvider()">Select Best Provider</button>
+            <button class="run-btn" onclick="runSelection()">⚡ Select Best Model</button>
         </div>
 
         <!-- Result Panel -->
-        <div class="panel">
+        <div class="panel" id="result-panel" style="display:none">
             <h2>Selection Result</h2>
-            <div class="result-panel" id="result">
-                <div class="result-header">
-                    <span class="status">Provider Selected</span>
-                    <span id="selection-time">12ms</span>
-                </div>
 
-                <div class="result-details">
-                    <div class="detail-item">
-                        <div class="label">Selected Provider</div>
-                        <div class="value info" id="selected-provider">Claude</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="label">Health Score</div>
-                        <div class="value success" id="selected-health">99%</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="label">Expected Latency</div>
-                        <div class="value" id="selected-latency">520ms</div>
-                    </div>
-                    <div class="detail-item">
-                        <div class="label">Final Score</div>
-                        <div class="value info" id="final-score">4.85</div>
-                    </div>
+            <div class="winner-header">
+                <div>
+                    <div style="font-size:0.78rem;color:var(--text-muted);margin-bottom:0.2rem">SELECTED MODEL</div>
+                    <div class="winner-model" id="res-model-name">—</div>
                 </div>
-
-                <div class="reasoning" id="reasoning">
-                    Selected 'Claude' with highest score 4.85. Factors: 99% success rate, moderate latency,
-                    supports all requested capabilities.
+                <div style="display:flex;gap:0.5rem;align-items:center;flex-wrap:wrap">
+                    <span id="res-provider-badge" class="winner-provider-badge"></span>
+                    <span id="res-tier-badge" class="tier-badge"></span>
+                    <span id="res-time" style="font-size:0.8rem;color:var(--text-muted)"></span>
                 </div>
             </div>
+
+            <div class="result-stats">
+                <div class="stat-box">
+                    <div class="stat-label">Capability Score</div>
+                    <div class="stat-value info" id="res-cap-score">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Health</div>
+                    <div class="stat-value success" id="res-health">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Est. Latency</div>
+                    <div class="stat-value" id="res-latency">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Cost Tier</div>
+                    <div class="stat-value warning" id="res-cost">—</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-label">Final Score</div>
+                    <div class="stat-value info" id="res-final">—</div>
+                </div>
+            </div>
+
+            <div class="cap-bars" id="cap-bars-section">
+                <div class="cap-bars-title">Capability strengths for selected task (winner vs field):</div>
+                <div id="cap-bars-container"></div>
+            </div>
+
+            <div style="margin-bottom:1rem">
+                <div style="font-size:0.8rem;color:var(--text-muted);margin-bottom:0.5rem">RUNNERS-UP</div>
+                <div id="runners-up-list"></div>
+            </div>
+
+            <div class="reasoning-box" id="res-reasoning">—</div>
         </div>
     </div>
 
@@ -437,143 +635,381 @@
     </footer>
 
     <script>
-        // Provider data
-        const providers = {
-            openai: {
-                name: 'OpenAI GPT-5.4',
-                rate: 98,
-                latency: 450,
-                capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'translation', 'reasoning', 'math']
-            },
-            gemini: {
-                name: 'Google Gemini 3.1 Pro',
-                rate: 95,
-                latency: 380,
-                capabilities: ['code_generation', 'text_analysis', 'translation', 'reasoning', 'math']
-            },
-            claude: {
-                name: 'Anthropic Claude Sonnet 4.6',
-                rate: 99,
-                latency: 520,
-                capabilities: ['code_generation', 'code_analysis', 'text_analysis', 'reasoning']
+    // ─── Model data ───────────────────────────────────────────────────────────
+    // strengths: 0.0–1.0 per capability dimension (realistic, not marketing copy)
+    const MODELS = {
+        'gpt54': {
+            name: 'GPT-5.4',
+            fullName: 'OpenAI GPT-5.4',
+            provider: 'openai',
+            tier: 'flagship',
+            latency: 450,
+            cost: '$$$',
+            strengths: {
+                code_gen:     0.97,  // native computer use + Codex heritage
+                code_analysis:0.93,
+                reasoning:    0.95,
+                math:         0.93,
+                text:         0.95,
+                translation:  0.90,
+                multimodal:   0.95,
+                agentic:      0.97,  // best-in-class: native computer use
+                long_context: 0.85   // 2M token context
             }
-        };
+        },
+        'o4mini': {
+            name: 'o4-mini',
+            fullName: 'OpenAI o4-mini',
+            provider: 'openai',
+            tier: 'reasoning',
+            latency: 290,
+            cost: '$$',
+            strengths: {
+                code_gen:     0.88,
+                code_analysis:0.87,
+                reasoning:    0.99,  // specialised reasoning model
+                math:         0.99,  // AIME / competition-grade
+                text:         0.85,
+                translation:  0.80,
+                multimodal:   0.76,
+                agentic:      0.82,
+                long_context: 0.72
+            }
+        },
+        'gem31pro': {
+            name: 'Gemini 3.1 Pro',
+            fullName: 'Google Gemini 3.1 Pro',
+            provider: 'google',
+            tier: 'flagship',
+            latency: 420,
+            cost: '$$$',
+            strengths: {
+                code_gen:     0.88,
+                code_analysis:0.86,
+                reasoning:    0.92,
+                math:         0.94,
+                text:         0.92,
+                translation:  0.98,  // multilingual training advantage
+                multimodal:   0.97,  // best-in-class multimodal
+                agentic:      0.85,
+                long_context: 0.99   // 1M+ token context window
+            }
+        },
+        'gem31flash': {
+            name: 'Gemini 3.1 Flash-Lite',
+            fullName: 'Google Gemini 3.1 Flash-Lite',
+            provider: 'google',
+            tier: 'fast',
+            latency: 150,
+            cost: '$',
+            strengths: {
+                code_gen:     0.75,
+                code_analysis:0.72,
+                reasoning:    0.74,
+                math:         0.77,
+                text:         0.82,
+                translation:  0.88,
+                multimodal:   0.84,
+                agentic:      0.65,
+                long_context: 0.88
+            }
+        },
+        'opus46': {
+            name: 'Claude Opus 4.6',
+            fullName: 'Anthropic Claude Opus 4.6',
+            provider: 'anthropic',
+            tier: 'flagship',
+            latency: 680,
+            cost: '$$$$',
+            strengths: {
+                code_gen:     0.96,
+                code_analysis:0.98,  // best-in-class code analysis
+                reasoning:    0.97,
+                math:         0.92,
+                text:         0.98,  // nuanced text understanding
+                translation:  0.92,
+                multimodal:   0.90,
+                agentic:      0.93,
+                long_context: 0.92
+            }
+        },
+        'sonnet46': {
+            name: 'Claude Sonnet 4.6',
+            fullName: 'Anthropic Claude Sonnet 4.6',
+            provider: 'anthropic',
+            tier: 'balanced',
+            latency: 460,
+            cost: '$$',
+            strengths: {
+                code_gen:     0.93,
+                code_analysis:0.95,
+                reasoning:    0.91,
+                math:         0.87,
+                text:         0.94,
+                translation:  0.87,
+                multimodal:   0.85,
+                agentic:      0.88,
+                long_context: 0.88
+            }
+        },
+        'haiku45': {
+            name: 'Claude Haiku 4.5',
+            fullName: 'Anthropic Claude Haiku 4.5',
+            provider: 'anthropic',
+            tier: 'fast',
+            latency: 200,
+            cost: '$',
+            strengths: {
+                code_gen:     0.78,
+                code_analysis:0.80,
+                reasoning:    0.74,
+                math:         0.70,
+                text:         0.83,
+                translation:  0.82,
+                multimodal:   0.70,
+                agentic:      0.68,
+                long_context: 0.74
+            }
+        }
+    };
 
-        let selectedCaps = [];
-        let preference = '';
+    const CAPABILITY_LABELS = {
+        code_gen:     'Code Generation',
+        code_analysis:'Code Analysis',
+        reasoning:    'Complex Reasoning',
+        math:         'Math & Science',
+        text:         'Text & Analysis',
+        translation:  'Translation',
+        multimodal:   'Multimodal / Vision',
+        agentic:      'Agentic / Tool Use',
+        long_context: 'Long Context'
+    };
 
-        // Update provider display
-        function updateProvider(id) {
-            const rate = document.getElementById(`${id}-rate`).value;
-            providers[id].rate = parseInt(rate);
+    // Presets: which caps to select
+    const PRESETS = {
+        code:      ['code_gen', 'code_analysis'],
+        math:      ['reasoning', 'math'],
+        translate: ['translation', 'text'],
+        vision:    ['multimodal'],
+        agent:     ['agentic', 'code_gen', 'reasoning'],
+        longdoc:   ['long_context', 'text']
+    };
 
-            document.getElementById(`${id}-rate-val`).textContent = `${rate}%`;
-            document.getElementById(`${id}-health`).textContent = `${rate}%`;
+    // Priority mode weights: [capability%, health%, latency%]
+    const PRIORITY_WEIGHTS = {
+        quality:  { cap: 0.65, health: 0.30, latency: 0.05 },
+        balanced: { cap: 0.55, health: 0.25, latency: 0.20 },
+        speed:    { cap: 0.30, health: 0.20, latency: 0.50 }
+    };
 
-            // Update health dot
-            const dot = document.getElementById(`${id}-dot`);
-            if (rate >= 90) {
-                dot.className = 'health-dot';
-            } else if (rate >= 70) {
-                dot.className = 'health-dot warning';
+    const TIER_CLASS = {
+        flagship: 'tier-flagship',
+        reasoning:'tier-reasoning',
+        balanced: 'tier-balanced',
+        fast:     'tier-fast'
+    };
+
+    const TIER_LABEL = {
+        flagship: 'Flagship',
+        reasoning:'Reasoning',
+        balanced: 'Balanced',
+        fast:     'Fast'
+    };
+
+    // ─── State ────────────────────────────────────────────────────────────────
+    const providerHealth = { openai: 98, google: 96, anthropic: 99 };
+    let selectedCaps = [];
+    let priorityMode = 'balanced';
+    let preference = '';
+
+    // ─── Scoring ──────────────────────────────────────────────────────────────
+    function scoreModel(modelId, caps) {
+        const m = MODELS[modelId];
+        const w = PRIORITY_WEIGHTS[priorityMode];
+        const health = providerHealth[m.provider] / 100;
+
+        // Average strength across selected capabilities
+        const capScore = caps.reduce((s, c) => s + (m.strengths[c] || 0), 0) / caps.length;
+
+        // Latency normalised (0 = slow 1500ms+, 1 = instant)
+        const latNorm = Math.max(0, 1 - m.latency / 1500);
+
+        // Weighted composite
+        const raw = capScore * w.cap + health * w.health + latNorm * w.latency;
+
+        // Preference bonus (+8%)
+        const prefBonus = (preference && preference === m.provider) ? 0.08 : 0;
+
+        return Math.min(1, raw + prefBonus);
+    }
+
+    // ─── Provider health updates ──────────────────────────────────────────────
+    function updateProviderHealth(provId) {
+        const rate = parseInt(document.getElementById(`rate-${provId}`).value);
+        providerHealth[provId] = rate;
+        document.getElementById(`rateval-${provId}`).textContent = rate + '%';
+
+        // Update all model cards for this provider
+        Object.entries(MODELS).forEach(([id, m]) => {
+            if (m.provider !== provId) return;
+            const dot = document.getElementById(`dot-${id}`);
+            const span = document.getElementById(`health-${id}`);
+            if (!dot || !span) return;
+            span.textContent = rate + '%';
+            dot.className = 'health-dot' + (rate >= 90 ? '' : rate >= 70 ? ' warning' : ' danger');
+        });
+    }
+
+    // ─── Capability chip selection ────────────────────────────────────────────
+    document.querySelectorAll('#cap-chips .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            chip.classList.toggle('selected');
+            const cap = chip.dataset.cap;
+            if (selectedCaps.includes(cap)) {
+                selectedCaps = selectedCaps.filter(c => c !== cap);
             } else {
-                dot.className = 'health-dot danger';
+                selectedCaps.push(cap);
             }
-        }
+        });
+    });
 
-        // Capability chip selection
-        document.querySelectorAll('.chip:not(.pref-chip)').forEach(chip => {
-            chip.addEventListener('click', () => {
-                chip.classList.toggle('selected');
-                const cap = chip.dataset.cap;
-                if (selectedCaps.includes(cap)) {
-                    selectedCaps = selectedCaps.filter(c => c !== cap);
-                } else {
-                    selectedCaps.push(cap);
-                }
+    // Preset chips
+    document.querySelectorAll('#presets-row .chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            const preset = PRESETS[chip.dataset.preset];
+            if (!preset) return;
+
+            // Deselect all caps first
+            selectedCaps = [];
+            document.querySelectorAll('#cap-chips .chip').forEach(c => c.classList.remove('selected'));
+
+            // Select preset caps
+            preset.forEach(cap => {
+                selectedCaps.push(cap);
+                const el = document.querySelector(`#cap-chips .chip[data-cap="${cap}"]`);
+                if (el) el.classList.add('selected');
             });
         });
+    });
 
-        // Preference selection
-        document.querySelectorAll('.pref-chip').forEach(chip => {
-            chip.addEventListener('click', () => {
-                document.querySelectorAll('.pref-chip').forEach(c => c.classList.remove('selected'));
-                chip.classList.add('selected');
-                preference = chip.dataset.pref;
-            });
+    // Priority tabs
+    document.querySelectorAll('.priority-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            document.querySelectorAll('.priority-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            priorityMode = tab.dataset.mode;
         });
+    });
 
-        // Select provider
-        function selectProvider() {
-            if (selectedCaps.length === 0) {
-                alert('Please select at least one capability');
-                return;
-            }
+    // Provider preference chips
+    document.querySelectorAll('.pref-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+            document.querySelectorAll('.pref-chip').forEach(c => c.classList.remove('selected'));
+            chip.classList.add('selected');
+            preference = chip.dataset.pref;
+        });
+    });
 
-            let bestProvider = null;
-            let bestScore = 0;
-            let scores = {};
-
-            for (const [id, provider] of Object.entries(providers)) {
-                // Check capability support
-                const supported = selectedCaps.filter(c => provider.capabilities.includes(c));
-                if (supported.length === 0) continue;
-
-                // Calculate score
-                let score = (provider.rate / 100) * 5;  // Base score from success rate
-                score -= (provider.latency / 1000);     // Penalty for latency
-                score += (supported.length / selectedCaps.length);  // Bonus for capability coverage
-
-                // Apply preference bonus
-                if (preference === id) {
-                    score *= 1.5;
-                }
-
-                scores[id] = score;
-
-                if (score > bestScore) {
-                    bestScore = score;
-                    bestProvider = { id, ...provider };
-                }
-            }
-
-            if (!bestProvider) {
-                alert('No provider supports the requested capabilities');
-                return;
-            }
-
-            // Display result
-            const result = document.getElementById('result');
-            result.classList.add('visible');
-
-            document.getElementById('selected-provider').textContent = bestProvider.name;
-            document.getElementById('selected-health').textContent = `${bestProvider.rate}%`;
-            document.getElementById('selected-latency').textContent = `${bestProvider.latency}ms`;
-            document.getElementById('final-score').textContent = bestScore.toFixed(2);
-            document.getElementById('selection-time').textContent = `${Math.floor(Math.random() * 15 + 5)}ms`;
-
-            // Generate reasoning
-            const reasons = [];
-            reasons.push(`Selected '${bestProvider.name}' with score ${bestScore.toFixed(2)}`);
-            reasons.push(`${bestProvider.rate}% success rate`);
-            reasons.push(`${bestProvider.latency}ms expected latency`);
-            if (preference === bestProvider.id) {
-                reasons.push(`matches user preference`);
-            }
-
-            document.getElementById('reasoning').textContent = reasons.join('. ') + '.';
-
-            // Highlight selected provider card
-            document.querySelectorAll('.provider-card').forEach(card => {
-                card.classList.remove('selected');
-                if (card.dataset.provider === bestProvider.id) {
-                    card.classList.add('selected');
-                }
-            });
+    // ─── Main selection logic ─────────────────────────────────────────────────
+    function runSelection() {
+        if (selectedCaps.length === 0) {
+            alert('Select at least one capability or use a preset.');
+            return;
         }
 
-        // Initialize
-        document.querySelector('.pref-chip[data-pref=""]').classList.add('selected');
+        const t0 = performance.now();
+
+        // Score all models
+        const scored = Object.keys(MODELS).map(id => ({
+            id,
+            model: MODELS[id],
+            score: scoreModel(id, selectedCaps)
+        })).sort((a, b) => b.score - a.score);
+
+        const winner = scored[0];
+        const runners = scored.slice(1, 4);
+
+        const elapsed = Math.round(performance.now() - t0) || 1;
+
+        // Highlight model cards
+        Object.keys(MODELS).forEach(id => {
+            const card = document.getElementById(`card-${id}`);
+            if (!card) return;
+            card.classList.remove('winner', 'runner-up');
+            if (id === winner.id) card.classList.add('winner');
+            else if (id === runners[0].id) card.classList.add('runner-up');
+        });
+
+        // Fill result panel
+        const m = winner.model;
+        const providerBadgeClass = { openai: 'badge-openai', google: 'badge-google', anthropic: 'badge-anthropic' };
+
+        document.getElementById('res-model-name').textContent = m.fullName;
+        const provBadge = document.getElementById('res-provider-badge');
+        provBadge.textContent = m.provider.charAt(0).toUpperCase() + m.provider.slice(1);
+        provBadge.className = 'winner-provider-badge ' + (providerBadgeClass[m.provider] || '');
+
+        const tierBadge = document.getElementById('res-tier-badge');
+        tierBadge.textContent = TIER_LABEL[m.tier];
+        tierBadge.className = 'tier-badge ' + (TIER_CLASS[m.tier] || '');
+
+        document.getElementById('res-time').textContent = `${elapsed}ms routing`;
+        document.getElementById('res-cap-score').textContent =
+            (selectedCaps.reduce((s, c) => s + (m.strengths[c] || 0), 0) / selectedCaps.length * 100).toFixed(1) + '%';
+        document.getElementById('res-health').textContent = providerHealth[m.provider] + '%';
+        document.getElementById('res-latency').textContent = m.latency + 'ms';
+        document.getElementById('res-cost').textContent = m.cost;
+        document.getElementById('res-final').textContent = (winner.score * 100).toFixed(1) + '%';
+
+        // Capability strength bars (winner vs field max)
+        const container = document.getElementById('cap-bars-container');
+        container.innerHTML = '';
+        selectedCaps.forEach(cap => {
+            const winnerStrength = m.strengths[cap] || 0;
+            const fieldMax = Math.max(...Object.values(MODELS).map(x => x.strengths[cap] || 0));
+            const pct = Math.round(winnerStrength * 100);
+            const isTopForCap = winnerStrength >= fieldMax - 0.01;
+
+            container.innerHTML += `
+                <div class="cap-bar-row">
+                    <div class="cap-bar-label">${CAPABILITY_LABELS[cap] || cap}</div>
+                    <div class="cap-bar-track">
+                        <div class="cap-bar-fill" style="width:${pct}%;${isTopForCap ? 'background:linear-gradient(90deg,var(--success),#4ade80)' : ''}"></div>
+                    </div>
+                    <div class="cap-bar-pct">${pct}%${isTopForCap ? ' ★' : ''}</div>
+                </div>`;
+        });
+
+        // Runners-up
+        const runnersList = document.getElementById('runners-up-list');
+        runnersList.innerHTML = '';
+        runners.forEach(r => {
+            runnersList.innerHTML += `
+                <div class="runner-up-row">
+                    <span class="runner-up-name">${r.model.fullName}</span>
+                    <span class="runner-up-score">${(r.score * 100).toFixed(1)}%</span>
+                </div>`;
+        });
+
+        // Reasoning
+        const capScores = selectedCaps.map(c => `${CAPABILITY_LABELS[c]}: ${Math.round((m.strengths[c]||0)*100)}%`).join(', ');
+        const topCap = selectedCaps.reduce((best, c) =>
+            (m.strengths[c] || 0) > (m.strengths[best] || 0) ? c : best, selectedCaps[0]);
+        const topCapIsLeader = Object.values(MODELS).every(x => (m.strengths[topCap]||0) >= (x.strengths[topCap]||0) - 0.01);
+
+        let reason = `${m.fullName} scored highest under "${priorityMode}" routing priority. `;
+        reason += `Selected capability strengths — ${capScores}. `;
+        if (topCapIsLeader) reason += `Leads the field on ${CAPABILITY_LABELS[topCap]}. `;
+        if (m.tier === 'reasoning') reason += `As a specialised reasoning model, o4-mini outperforms flagship models on math and logical deduction. `;
+        if (m.tier === 'fast' && priorityMode === 'speed') reason += `Speed/Cost mode heavily weights low latency (${m.latency}ms) and cost-per-token ($), making fast-tier models competitive. `;
+        if (preference && preference === m.provider) reason += `Provider preference bonus (+8%) applied for ${m.provider}. `;
+        reason += `Runner-up: ${runners[0].model.fullName} (${(runners[0].score * 100).toFixed(1)}%).`;
+
+        document.getElementById('res-reasoning').textContent = reason;
+
+        document.getElementById('result-panel').style.display = 'block';
+        document.getElementById('result-panel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
     </script>
 </body>
 </html>
