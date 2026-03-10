@@ -404,16 +404,16 @@
                             <span>450ms</span>
                         </div>
                     </div>
-                    <div class="model-card" id="card-o4mini">
-                        <div class="model-name">o4-mini</div>
+                    <div class="model-card" id="card-gpt5mini">
+                        <div class="model-name">GPT-5 mini</div>
                         <div class="model-meta">
-                            <span class="tier-badge tier-reasoning">Reasoning</span>
+                            <span class="tier-badge tier-fast">Fast</span>
                             <span class="cost-tier">$$</span>
                         </div>
                         <div class="health-row">
                             <div class="health-indicator">
-                                <span class="health-dot" id="dot-o4mini"></span>
-                                <span id="health-o4mini">98%</span>
+                                <span class="health-dot" id="dot-gpt5mini"></span>
+                                <span id="health-gpt5mini">98%</span>
                             </div>
                             <span>290ms</span>
                         </div>
@@ -657,18 +657,18 @@
                 long_context: 0.85   // 2M token context
             }
         },
-        'o4mini': {
-            name: 'o4-mini',
-            fullName: 'OpenAI o4-mini',
+        'gpt5mini': {
+            name: 'GPT-5 mini',
+            fullName: 'OpenAI GPT-5 mini',
             provider: 'openai',
-            tier: 'reasoning',
+            tier: 'fast',
             latency: 290,
             cost: '$$',
             strengths: {
                 code_gen:     0.88,
                 code_analysis:0.87,
-                reasoning:    0.99,  // specialised reasoning model
-                math:         0.99,  // AIME / competition-grade
+                reasoning:    0.88,  // solid but not specialised
+                math:         0.90,  // strong, efficient
                 text:         0.85,
                 translation:  0.80,
                 multimodal:   0.76,
@@ -1000,7 +1000,7 @@
         let reason = `${m.fullName} scored highest under "${priorityMode}" routing priority. `;
         reason += `Selected capability strengths — ${capScores}. `;
         if (topCapIsLeader) reason += `Leads the field on ${CAPABILITY_LABELS[topCap]}. `;
-        if (m.tier === 'reasoning') reason += `As a specialised reasoning model, o4-mini outperforms flagship models on math and logical deduction. `;
+        if (winner.id === 'gpt5mini') reason += `GPT-5 mini is OpenAI's fast, cost-efficient variant — lower latency and token cost than GPT-5.4 while retaining strong general capability. `;
         if (m.tier === 'fast' && priorityMode === 'speed') reason += `Speed/Cost mode heavily weights low latency (${m.latency}ms) and cost-per-token ($), making fast-tier models competitive. `;
         if (preference && preference === m.provider) reason += `Provider preference bonus (+8%) applied for ${m.provider}. `;
         reason += `Runner-up: ${runners[0].model.fullName} (${(runners[0].score * 100).toFixed(1)}%).`;
